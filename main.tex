@@ -1,8 +1,7 @@
 \documentclass{vldb}
 \newcommand{\red}{\textcolor{red}}
-\newcommand{\techreport}{our technical report~\cite{techreport}}
-\newcommand{\titlename}{Cerebro: A Data System for Optimized Deep Learning Model Selection [Information System Architectures]}
-%<*tag>
+\newcommand{\titlename}{Machine Learning for Database Internals}
+
 \usepackage{graphicx,subfigure,xspace,cite,verbatim,comment}
 \usepackage{hyperref,array,color,balance,multirow}
 \usepackage{balance,float,url,amsfonts,alltt}
@@ -51,8 +50,8 @@
 %\pagestyle{empty}  
 %\pagenumbering{arabic}
 
-\vldbTitle{Cerebro: A Data System for Optimized Deep Learning Model Selection [Information System Architectures]}
-\vldbAuthors{Supun Nakandala, Yuhao Zhang, and Arun Kumar}
+\vldbTitle{\titlename}
+\vldbAuthors{Supun Nakandala}
 \vldbDOI{https://doi.org/TBD}
 \vldbVolume{00}
 \vldbNumber{0}
@@ -62,150 +61,25 @@
 
 
 \author{
-	\alignauthor Supun Nakandala, Yuhao Zhang, and Arun Kumar\\
+	\alignauthor Supun Nakandala\\
 	\affaddr{University of California, San Diego}
-	\email{\{snakanda, yuz870, arunkk\}@eng.ucsd.edu}
+	\email{snakanda@eng.ucsd.edu}
 }
-
-% \numberofauthors{3}
-% \author{
-% \alignauthor Supun Nakandala\\
-% \affaddr{University of California\\ San Diego}
-% \email{snakanda@eng.ucsd.edu}
-% \alignauthor Yuhao Zhang\\
-% \affaddr{University of California\\ San Diego}
-% \email{yuz870@eng.ucsd.edu}
-% \alignauthor Arun Kumar\\
-% \affaddr{University of California\\ San Diego}
-% \email{arunkk@eng.ucsd.edu}
-% \alignauthor
-% \affaddr{University of California\\ San Diego}
-% }
 
 \maketitle
 
 \begin{abstract}
 \end{abstract}
 
+\section{Excerpts from Papers}
+
+\red{Seattle Report~\cite{seattle-report}:} Recent advances in ML have inspired our community to reflect on how
+some of hard data engine problems could use ML to advance the state of the art. The most obvious such problems are in auto tuning.
+For example, we can systematically replace ``magic numbers'' in database systems with data-driven learning models and use them to auto-tune system configurations.
+ML also provides new hope for progress in query optimization, which has seen only minor improvements in the last two decades.
+Although in principle almost any component can potentially be improved with ML, answers to some key questions are prerequisites for success, such as availability of training data, a well-thought software engineering pipeline to support an ML component (debuggability is notoriously hard), and availability of the guard-rails so that when test data or test queries deviate from the training data and training queries, the system degrades gracefully.
 
 
-\section{Discussion and Limitations}
-We discuss extensions and limitations of our work.
-
-\vspace{2mm}
-\noindent \textbf{Integration into Data-Parallel Systems.} MOP's generality makes it amenable to emulation on top of BSP data-parallel systems such as parallel RDBMSs and dataflow systems.
-Indeed, Pivotal/VMWare has recently collaborated with us to integrate MOP into Greenplum by extending the MADlib library~\cite{madlib} for running TensorFlow on Greenplum-resident data.
-Greenplums's customers are interested in this integration for enterprise ML use cases including language processing, image recognition, and fraud detection.
-We also plan to integrate MOP into other popular BSP systems (e.g., Spark and Redshift) in a similar way.
-
-\vspace{2mm}
-\noindent\textbf{Model Parallelism and Batching.} \system~currently does not support model parallelism (for models larger than single-node memory) and batching (i.e., running multiple models on a worker at a time).
-But nothing in \system~ makes it impossible to remove these limitations.
-For instance, model parallelism can be supported with the notion of virtual nodes composed of multiple physical nodes that together hold an ultra-large model.
-Model batching can be supported by having multiple virtual nodes mapped to a physical node. We leave such extensions to future work.
-
-% What is more, we are collaborating with Pivotal engineers to integrate MOP into Greenplum by extending their library for running TensorFlow on the MPP database without exporting data. Pivotal's customers are interested in this integration for enterprise image analytics use cases.
-
-
-\section{Related Work}\label{sec:related_work}
-\vspace{2mm}
-\noindent \textbf{Systems for Model Selection.} Google Vizier~\cite{vizier}, Ray Tune~\cite{ray_tune}, Dask-Hyperband~\cite{sievert2019better}, SparkDL~\cite{sparkdl}, and Spark-Hyperopt~\cite{spark-hyperopt} are also systems for model selection.
-Vizier, Ray, and Dask-Hyperband are pure task-parallel systems that provide implementations of some AutoML procedures.
-% build on top of task parallel execution and provide implementations of popular AutoML procedures.
-SparkDL and Spark-Hyperopt use Spark underneath but only for distributing the configs, not the data--they replicate the full dataset to each worker like task-parallelism.
-As we showed, \system~ offers higher overall resource efficiency compared to this prior landscape of purely task-parallel or purely data-parallel tools.
-
-
-\vspace{2mm}
-\noindent \textbf{Hybrid Parallelism in ML Systems.} 
-MOP is inspired by the classical idea of process migration in OS multiprocessing~\cite{remzi-os}. We bring this idea to the multi-node data-partitioned regime. This general idea has been applied before in limited contexts in ML systems. The closest to our work is~\cite{chen2015efficient}, which proposes a hybrid scheme for training many homogeneous CNNs for images on a homogeneous GPU cluster. They propose a ring topology to migrate models, resembling a restricted form of MOP. But their strong homogeneity assumptions can cause stalls in general model selection workloads, e.g., due to heterogeneous neural architectures or clusters. In contrast, our work approaches this problem from first principles and formalizes it as an instance of open shop scheduling. This powerful abstraction lets \system~ support arbitrary deep nets and data types, as well as heterogeneous neural architectures and clusters. It also lets \system~offer other crucial systems capabilities: replication, fault tolerance, elasticity, and arbitrary AutoML procedures unlike prior work. Similarly, \cite{parmac} also propose a ring topology for model migration when training a single binary autoencoder using the auxiliary coordinate method. Our focus is more general: model selection for general deep nets trained using SGD. And like~\cite{chen2015efficient}, ring topologies are not optimal in our setting. SystemML also supports a hybrid of task- and data-parallelism for linear algebra-based classical ML~\cite{systemmlhybrid}. They enable task-parallelism on top of data-parallel MapReduce and focus on better plan generation to exploit multi-cores and clusters. \system~ is complementary because we focus on deep nets and SGD's data access pattern, not linear algebra-based classical ML.
-
-\vspace{2mm}
-\noindent \textbf{AutoML Procedures.} As explained before, AutoML procedures such as Hyperband~\cite{hyperband} and PBT~\cite{pbt} are orthogonal to our work and exist at a higher abstraction level; \system~ acts as a distributed execution engine for them. They fit a common template of per-epoch scheduling in \system.
-While ASHA~\cite{li2018massively} and Hyperopt~\cite{hyperopt} do not fit this template, \system~can still emulate them well and offer similar accuracy as pure task-parallelism without any modifications to \system, e.g., see the ASHA results in Section~\ref{sec:automl}. Bayesian optimization is another popular line of AutoML metaheuristics in the ML world. Some such techniques have a high degree of parallelism in searching configs (e.g., \cite{bohb, ts}); support for these is easy to add on \system. Some others perform sequential search, leading to a low degree to parallelism (e.g., \cite{fabolas, bobengio}); these may not be a fit for the current \system. We leave more hybrid schemes for such cases to future work.
-
-
-
-\vspace{2mm}
-\noindent \textbf{Cluster Scheduling for Deep Learning.} Gandiva~\cite{gandiva} is a cluster scheduling system for deep learning that also targets model selection.
-But its focus is on lower-level primitives such as GPU time slicing and intra-server locality awareness.
-SLAQ~\cite{slaq} is a scheduling system that allocates training resources to models based on their intermediate performance. It tries to maximize the average model quality.
-%such as but not limited to GPU time slicing(sharing GPU time with multiple tasks), intra-server locality awareness(e.g., GPUs connected on the same CPU socket or PCIe switch or not).
-\system~is complementary to them as it operates at a higher abstraction level and targets the throughput of model selection.
-% Similar to Gandiva, Tiresias \cite{tiresias} is another GPU cluster manager for deep learning model selection.
-Tiresias~\cite{tiresias} is another GPU cluster manager for deep learning.
-% It tries to minimize makespan, increase GPU utilization, and avoid starvation during model selection.
-It targets Parameter Servers and reduces the makespan via a generalized least-attained service scheduling algorithm and better task allocation.
-It is also orthogonal to \system, which operates at a higher abstraction level and targets different system environments.
-How compute hardware is allocated is outside our scope; we believe \system~can work with both of these cluster resource managers.
-There is a long line of work on general job scheduling algorithms in the operations research and systems literatures~\cite{schedulingor,schedulingos,schedulingbd}. 
-Our goal is \textit{not} to create new scheduling algorithms but to apply known algorithms to a new ML systems setting based on MOP.
-
-% \noindent \textbf{AutoML procedures.} AutoML procedures such as Hyperband \cite{hyperband}, SMASH \cite{smash} and PBT \cite{pbt} and many other AutoML procedures strive for better and faster hyper-parameter tuning. They are complementary to our work as they work one layer above \system~and have different goals. \system~ works as a distributed execution engine for these procedures.
-
-
-\vspace{2mm}
-\noindent \textbf{Systems for Distributed SGD.} There is much prior work on systems to reduce the latency of distributed SGD. 
-Most of them focus on optimizing centralized fine-grained SGD training (e.g., PS2~\cite{ps2}, SINGA~\cite{singa}, Mariana~\cite{mariana}, SketchML~\cite{sketchml}, and several others~\cite{heterps, hogwild+, subnets, flexps}) and/or decentralized fine-grained SGD training (Ako~\cite{ako}, AD-PSGD~\cite{lian2017asynchronous}, Orpheus~\cite{orpheus}, and SINGA again~\cite{singa}).
-All such systems are complementary to our work, since they improve parallelism for training one model at a time, while our focus is on model selection with many models being trained.
-As we showed, such systems have higher communication complexity (and thus, higher runtimes) than MOP in our setting. 
-Also, since \system~performs logically sequential SGD, it ensures theoretically best convergence efficiency.
-CROSSBOW~\cite{crossbow} proposes a novel variant of model averaging for single-server multi-GPU environment to overcome the convergence issues of naive model averaging.
-But it too is complementary to our work, since it too focuses on training one model at a time. 
-Overall, our work breaks the dichotomy between such data-parallel approaches and task-parallel approaches, thus offering better overall resource efficiency.
-
-
-
-\vspace{2mm}
-\noindent \textbf{System Optimizations.} Another recent line of work optimizes the deep learning tools' internals, including better pipelining of computation and communication (PipeDream~\cite{pipedream}), better compilation techniques (SOAP~\cite{soap}, SystemML~\cite{systemmlfusion}), and model batching (HiveMind~\cite{hivemind}). All these are complementary to \system, since they optimize low-level operator execution of a neural computational graph. MOP is general enough to allow \system~to be hybridized with such ideas.
-
-% Such optimization is achieved by increasing the overlap of communication (PipeDream \cite{pipedream}, P3 \cite{p3}),
-% smart graph rewriting (SOAP \cite{soap}),
-% and model batching (HiveMind \cite{hivemind}).
-% These are also complimentary to \system~as they target optimizations for low-level operator execution. MOP is general enough to hybridize with these systems. 
-
-
-% \vspace{2mm}
-% \noindent \textbf{System optimizations.} Another recent stream of research focuses on the optimization of deep learning tools. Such optimization is achieved by increasing the overlap of communication (PipeDream \cite{pipedream}, P3 \cite{p3}), smart graph rewriting (SOAP \cite{soap}), and model batching (HiveMind \cite{hivemind}). These are also orthogonal to \system~as they target different settings. We believe MOP is general enough to hybridize with these new systems. 
-
-
-% \noindent \textbf{Systems for parallel SGD.} There are multiple system research trying to reduce the latency of parallel SGD, by operator fusions (SystemML \cite{systemmlfusion}), partitioning neural nets (SINGA\cite{singa}) and hybrid of model-parallel and data-parallel \cite{subnets, hogwild+}, parallelism control for dynamic workloads (FlexPS \cite{flexps}), partitioned linearity topology and approximate AdaGrad (Mariana \cite{mariana}), variation of model averaging (CROSSBOW \cite{crossbow}), heterogeneity-aware PS\cite{heterps}, lossless and lossy representation/compression of gradients (Orpheus \cite{orpheus}, SketchML \cite{sketchml}), partial gradient exchange based on available bandwidth (Ako~\cite{ako}), and building parameter server upon existing data processing systems like Spark (PS2\cite{ps2}).  
-% These systems are largely complementary to \system, as they mainly focus on the parameter server architecture and do not target on the throughput of model training.
-
-
-% \red{Supun: Potential Other Papers from SIGMOD/VLDB}
-% \begin{enumerate}
-%	\item FlexPS: flexible parallelism control in parameter server architecture
-%	\item Mariana: tencent deep learning platform and its applications
-%	\item Crossbow: scaling deep learning with small batch sizes on multi-GPU servers
-%	\item Scalable asynchronous gradient descent optimization for out-of-core models
-% \item Don't know where to put:
-% Worth mentioning, SystemML \cite{systemmlhybrid} also talks about hybridization of task- and data- parallelism for ML workloads. It is a general approach for task-parallelism on top of data-parallel map-reduce tasks, and focuses on better execution plan generation, to exploit multi-core and cluster parallelism. Our system is complementary because \system~targets model selection workloads. Furthermore, MOP is a new type of parallelism, instead of plain task- over data-parallelism.
-
-%	\item Hybrid parallelization strategies for large-scale machine learning in SystemML
-%	\item Heterogeneity-aware Distributed Parameter Servers
-%	\item Orpheus: Efficient Distributed Machine Learning via System and Algorithm Co-design
-%	\item SketchML: Accelerating Distributed Machine Learning with Data Sketches
-%	\item SLAQ: quality-driven scheduling for distributed machine learning
-%	\item Ako
-% \end{enumerate}
-
-
-\vspace{2mm}
-\noindent We  published a short vision paper on \system~at a recent workshop~\cite{nakandala2019cerebro}. That paper outlined the basic idea of MOP, 
-showed an initial experiment on feasibility, and listed open research questions on scheduling and systems issues.
-This paper fleshes out MOP fully and tackles the open questions to build the whole system, including formalizing and implementing the scheduler, supporting replica-aware scheduling, fault tolerance, and integrating with more deep learning tools and AutoML procedures.
-This paper also presents more extensive experiments, including on more datasets, models, and workloads, as well as all the drill-down analyses and experiments with AutoML procedures.
-
-\vspace{-2mm}
-\section{Conclusions and Future Work}\label{sec:conclusions}
-
-Simplicity that still achieves maximal functionality and efficiency is a paragon of virtue in real-world systems.
-We present a simple but novel and highly general form of parallel SGD execution, MOP, that raises the resource efficiency of deep net model 
-selection without sacrificing accuracy or reproducibility. MOP is also simple to implement, which we demonstrate by building \system, 
-a fault-tolerant deep net model selection system that supports multiple popular deep learning tools and model selection procedures. 
-Experiments with large ML benchmark datasets confirm the benefits of \system.
-As for future work, we plan to hybridize MOP with model parallelism and batching and also support more complex model selection scenarios such as transfer learning.
 
 % \pagebreak
 \bibliography{main}

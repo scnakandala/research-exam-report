@@ -1,28 +1,41 @@
-\documentclass{vldb}
-\newcommand{\red}{\textcolor{red}}
-\newcommand{\titlename}{Machine Learning for Database Internals}
+%!TEX root = <main.tex>
+\documentclass[acmsmall]{acmart}
 
-\usepackage{graphicx,subfigure,xspace,cite,verbatim,comment}
+% \copyrightyear{2019} 
+% \acmYear{2019} 
+% \setcopyright{acmcopyright}
+% \acmConference[SIGMOD '19]{2019 International Conference on Management of Data}{June 30-July 5, 2019}{Amsterdam, Netherlands}
+% \acmBooktitle{2019 International Conference on Management of Data (SIGMOD '19), June 30-July 5, 2019, Amsterdam, Netherlands}
+% \acmPrice{15.00}
+% \acmDOI{10.1145/3299869.3319874}
+% \acmISBN{978-1-4503-5643-5/19/06}
+
+\settopmatter{printacmref=false}
+% \fancyhead{}
+
+\usepackage[font=small,labelfont=bf]{caption}
+\usepackage{graphicx,xspace,verbatim,comment}
 \usepackage{hyperref,array,color,balance,multirow}
 \usepackage{balance,float,url,amsfonts,alltt}
 \usepackage{mathtools,rotating,amsmath,amssymb}
-\usepackage{color,cite,ifpdf,fancyvrb}
-\usepackage{etoolbox,listings}
+\usepackage{color,ifpdf,fancyvrb}
+\usepackage{etoolbox,listings,subcaption}
 \usepackage{bigstrut,morefloats,pbox}
 \usepackage{amsmath}
 \usepackage{algorithm}
-\usepackage[noend]{algorithmic}
+\usepackage[noend]{algpseudocode}
 \usepackage{booktabs}
-\usepackage{lipsum}  
-\usepackage[all]{nowidow}
+\usepackage{bm}
+
 \newtheorem{theorem}{Theorem}[section]
-\newtheorem{proposition}{Proposition}[section]
+\newtheorem{prop}{Proposition}[section]
 \newtheorem{corollary}[theorem]{Corollary}
 \newtheorem{lemma}[theorem]{Lemma}
 \newtheorem{definition}{Definition}[section]
-\newcommand{\eat}[1]{}
-\newcommand{\system}{\textsc{Cerebro}}
- 
+
+\newcommand{\red}{\textcolor{red}}
+\newcommand{\titlename}{Machine Learning for Database Internals: A Survey}
+
 \DeclarePairedDelimiter{\ceil}{\lceil}{\rceil}
 
 \newenvironment{packeditems}{
@@ -41,48 +54,58 @@
 
 \newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
 
-\newtoggle{TR}
-%\toggletrue{TR}
-
 \DeclareMathOperator*{\argmin}{arg\,min}
 
+\pagestyle{empty}  
+\pagenumbering{arabic}
 
-%\pagestyle{empty}  
-%\pagenumbering{arabic}
-
-\vldbTitle{\titlename}
-\vldbAuthors{Supun Nakandala}
-\vldbDOI{https://doi.org/TBD}
-\vldbVolume{00}
-\vldbNumber{0}
-\vldbYear{2019}
 \begin{document}\sloppy
 \title{\titlename}
 
 
-\author{
-	\alignauthor Supun Nakandala\\
-	\affaddr{University of California, San Diego}
-	\email{snakanda@eng.ucsd.edu}
+\author{Supun Nakandala}
+\affiliation{
+  \institution{University of California, San Diego}
 }
+\email{snakanda@eng.ucsd.edu}
 
 \maketitle
-
 \begin{abstract}
 \end{abstract}
 
+\input{introduction.tex}
+
+\section{Background}
+\subsection{Database System Architecture}
+\subsection{Machine Learning Methods}
+
+\input{relational_engine.tex}
+
+\section{ML for Physical Database Design Optimization}
+
+\section{ML for Knob Tuning}
+
+
+
+\section{End-to-End Learned Database Systems}
+
+\section{Open Challenges}
+
+\section{Conclusion}
+
+
+
+
 \section{Excerpts from Papers}
 
-\red{Seattle Report~\cite{seattle-report}:} Recent advances in ML have inspired our community to reflect on how
+Seattle Report \cite{seattle-report} Recent advances in ML have inspired our community to reflect on how
 some of hard data engine problems could use ML to advance the state of the art. The most obvious such problems are in auto tuning.
 For example, we can systematically replace ``magic numbers'' in database systems with data-driven learning models and use them to auto-tune system configurations.
 ML also provides new hope for progress in query optimization, which has seen only minor improvements in the last two decades.
 Although in principle almost any component can potentially be improved with ML, answers to some key questions are prerequisites for success, such as availability of training data, a well-thought software engineering pipeline to support an ML component (debuggability is notoriously hard), and availability of the guard-rails so that when test data or test queries deviate from the training data and training queries, the system degrades gracefully.
 
 
-
-% \pagebreak
+\bibliographystyle{unsrt}
 \bibliography{main}
-\bibliographystyle{abbrv}
-%</tag>
+
 \end{document}

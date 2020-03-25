@@ -34,7 +34,7 @@
 \newtheorem{definition}{Definition}[section]
 
 \newcommand{\red}{\textcolor{red}}
-\newcommand{\titlename}{Machine Learning for Database Internals: A Survey}
+\newcommand{\titlename}{Machine Learning for Database Internals: Existing Landscape, Trade-Offs, and Open Challenges}
 
 \DeclarePairedDelimiter{\ceil}{\lceil}{\rceil}
 
@@ -79,30 +79,17 @@
 \subsection{Database System Architecture}
 \subsection{Machine Learning Methods}
 
+\input{parser.tex}
 \input{relational_engine.tex}
+\input{execution_engine.tex}
 
-\section{ML for Physical Database Design Optimization}
+% \section{Excerpts from Papers}
 
-\section{ML for Knob Tuning}
-
-
-
-\section{End-to-End Learned Database Systems}
-
-\section{Open Challenges}
-
-\section{Conclusion}
-
-
-
-
-\section{Excerpts from Papers}
-
-Seattle Report \cite{seattle-report} Recent advances in ML have inspired our community to reflect on how
-some of hard data engine problems could use ML to advance the state of the art. The most obvious such problems are in auto tuning.
-For example, we can systematically replace ``magic numbers'' in database systems with data-driven learning models and use them to auto-tune system configurations.
-ML also provides new hope for progress in query optimization, which has seen only minor improvements in the last two decades.
-Although in principle almost any component can potentially be improved with ML, answers to some key questions are prerequisites for success, such as availability of training data, a well-thought software engineering pipeline to support an ML component (debuggability is notoriously hard), and availability of the guard-rails so that when test data or test queries deviate from the training data and training queries, the system degrades gracefully.
+% Seattle Report \cite{seattle-report} Recent advances in ML have inspired our community to reflect on how
+% some of hard data engine problems could use ML to advance the state of the art. The most obvious such problems are in auto tuning.
+% For example, we can systematically replace ``magic numbers'' in database systems with data-driven learning models and use them to auto-tune system configurations.
+% ML also provides new hope for progress in query optimization, which has seen only minor improvements in the last two decades.
+% Although in principle almost any component can potentially be improved with ML, answers to some key questions are prerequisites for success, such as availability of training data, a well-thought software engineering pipeline to support an ML component (debuggability is notoriously hard), and availability of the guard-rails so that when test data or test queries deviate from the training data and training queries, the system degrades gracefully.
 
 
 \bibliographystyle{unsrt}

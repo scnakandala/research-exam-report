@@ -1,0 +1,29 @@
+\section{ML for Execution Engine}
+
+
+\subsection{Knob Tuning}
+The performance of the database execution engine is highly dependant on the chosen values of the tunable knobs which controls nearly all aspects of the runitme operations.
+For example these knobs control aspects such as how much memory to be used for caching data versus transaction log buffer, how often the data to be written to the disk, and things like query execution parallelism.
+Similar to physical database design, finding a good knob configuration for a target query workload is generally the responsibility of database administration personnel, for which they either use common sense heuristics and/or a trial and error procedure.
+Alternatively, one could use machine learning techniques to automatically find an optimal knob configuration for a target query workload.
+
+iTuned~\cite{ituned} approaches this problem by executing a series of carefully-planned experiments and picking the configuration which minimizes the overall workload time.
+Given a target query workload iTuned uses latin hypercube sampling to pick an initial set of configurations and execute them to obtain the execution time.
+The results are then modeled using a Gaussian process representation to pick the next configuration to be executed.
+This process continues until a good enough configuration is found.
+It also uses several techniques to reduce the overall tuning time including: early elimination of configurations with insignificant improvements, executing parallel experiments, aborting less promising experiments early, and compressing the query workload.
+Similarly, OtterTune~\cite{ottertune} also executes a series of experiments chosen by modeling a Gaussian representation process.
+However, instead of starting with a sampled set of initial configurations, it maps the current workload to a similar previous workload which has been already tuned, and use that to pick the next experiment configuration.
+Leveraging the learning from previous workloads helps OtterTune to finish the tuning process much faster than iTuned.
+Workload mapping is achieved through a workload characterization step which combines factor analysis (over metrics obtained through database monitoring tools) and k-mean clustering.
+It also prunes irrelevant knob configurations ranked using Lasso feature selection and incrementally increase the numbed of tuned configuration based on their importance as tuning progresses.
+iBTune~\cite{ibtune} is a system for reducing buffer pool sizes of cloud OLTP database instances to reclaim memory while conforming to the service level agreements (SLA) on query response time.
+It iteratively uses data from other instances with similar workloads to choose a target buffer pool size using large deviation analysis.
+But before making the change, it uses a pairwise deep neural network to predict the new response time and proceeds only if the predicted value is within in the SLA.
+
+One of the major bottlenecks for ML-based knob tuning methods is not having access to low-level/sub-component level system performance metrics.
+While database systems do provide metrics they often happen to be aggregated at the entire system level and are less informative to tune sub-component level knobs.
+Another bottleneck is the inability to change system configuration values without complete system restarts.
+Database systems are not designed to be tuned by iteratively executing multiple experiments. 
+However, ML-based methods require only the fly configuration testing, without which they incur significant overheads.
+

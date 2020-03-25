@@ -5,7 +5,7 @@
 The performance of the database execution engine is highly dependant on the chosen values of the tunable knobs which controls nearly all aspects of the runitme operations.
 For example these knobs control aspects such as how much memory to be used for caching data versus transaction log buffer, how often the data to be written to the disk, and things like query execution parallelism.
 Similar to physical database design, finding a good knob configuration for a target query workload is generally the responsibility of database administration personnel, for which they either use common sense heuristics and/or a trial and error procedure.
-Alternatively, one could use machine learning techniques to automatically find an optimal knob configuration for a target query workload.
+Alternatively, one could use ML techniques to automatically find an optimal knob configuration for a target query workload.
 
 iTuned~\cite{ituned} approaches this problem by executing a series of carefully-planned experiments and picking the configuration which minimizes the overall workload time.
 Given a target query workload iTuned uses latin hypercube sampling to pick an initial set of configurations and execute them to obtain the execution time.
@@ -27,3 +27,30 @@ Another bottleneck is the inability to change system configuration values withou
 Database systems are not designed to be tuned by iteratively executing multiple experiments. 
 However, ML-based methods require only the fly configuration testing, without which they incur significant overheads.
 
+\subsection{ML for Data Structures and Algorithms}
+Every single operation that is executed inside an execution engine heavily relies on core data structures such as index structures and algorithms such as sorting.
+These data structures and algorithms does not make any assumptions on the distribution of the data and gives guarantees on the worst case performance.
+However, in some cases if we know certain properties about the distribution of the underlying data, it is possible to come up with data structures and algorithms that can yield superior performance compared to the generic ones.
+On the other hand, ML provides a flexible framework for learning data distribution from the data.
+Thus, a recent line of research have shown the possibility of using ML models to replace core data structures algorithms to achieve superior performances for specific use cases.
+
+LearnedIndex~\cite{learnedindex} is the very first system to propose the idea of using ML models to replace core data structures and algorithms, focusing mainly on B-Tree indices. 
+Given a key, what a B-Tree index essentially does is finding its position on a sorted list using a series of tree traversals.
+We also get a nice guarantee on the error on the selected position: the maximum error is bounded by the page size.
+In this sense a B-Tree index is a model which captures the cumulative distribution function (CDF) of the key values.
+Thus, it is possible to replace B-Tree index with an ML model which is trained to capture the CDF of the key values.
+The error guarantee of the ML model can be found during training, which is the maximum offset between the predicted and the actual position.
+Interestingly, unlike other ML applications the objective here is to minimize training error and not the generalization error.
+The advantage of replacing a B-Tree index using an ML model is that it reduces both the lookup time memory footprint of the index.
+FITing-Tree~\cite{fitingtree} is another system that replaces B-Tree indices using learned ML models.
+
+XIndex~\cite{xindex}
+
+LearnedIndex system also proposed methods to replaced several other data structures and algorithms using ML models.
+For example one of main issues with HashMap structures is getting hash collisions which increases the latency of retrievals.
+This happens when multiple keys getting mapped to the same hash bucket.
+Similar to learned index, if we train an ML model to capture the CDF of the keys, we can replace hash function with that ML model to potentially reduce the number of hash collisions.
+The same CDF model can be used to sort the data more efficiently by first ordering the data in nearly sorted order using the CDF model and finally using insertion sort.
+Bloom filters are another popular data structure in database systems which are used as existence indices.
+They can be replaced by training a classification model for which the decision threshold is chosen such that the false negative rate is zero.
+While these systems have shown initial promising results for the feasibility of replacing core data structures and algorithms using ML models, much work is still needed to make them available in practical systems.

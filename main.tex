@@ -1,17 +1,11 @@
 %!TEX root = <main.tex>
-\documentclass[acmsmall]{acmart}
-
-% \copyrightyear{2019} 
-% \acmYear{2019} 
-% \setcopyright{acmcopyright}
-% \acmConference[SIGMOD '19]{2019 International Conference on Management of Data}{June 30-July 5, 2019}{Amsterdam, Netherlands}
-% \acmBooktitle{2019 International Conference on Management of Data (SIGMOD '19), June 30-July 5, 2019, Amsterdam, Netherlands}
-% \acmPrice{15.00}
-% \acmDOI{10.1145/3299869.3319874}
-% \acmISBN{978-1-4503-5643-5/19/06}
+\documentclass[sigconf, 10pt]{acmart}
+% \documentclass[acmsmall]{acmart}
 
 \settopmatter{printacmref=false}
-% \fancyhead{}
+\renewcommand\footnotetextcopyrightpermission[1]{} 
+\pagenumbering{arabic}
+\pagestyle{plain}
 
 \usepackage[font=small,labelfont=bf]{caption}
 \usepackage{graphicx,xspace,verbatim,comment}
@@ -34,7 +28,7 @@
 \newtheorem{definition}{Definition}[section]
 
 \newcommand{\red}{\textcolor{red}}
-\newcommand{\titlename}{Machine Learning for Database Internals: Existing Landscape, Trade-Offs, and Open Challenges}
+\newcommand{\titlename}{ML for Database Management Systems: Existing Landscape, Design Choices, and Open Challenges}
 
 \DeclarePairedDelimiter{\ceil}{\lceil}{\rceil}
 
@@ -56,12 +50,8 @@
 
 \DeclareMathOperator*{\argmin}{arg\,min}
 
-\pagestyle{empty}  
-\pagenumbering{arabic}
-
 \begin{document}\sloppy
 \title{\titlename}
-
 
 \author{Supun Nakandala}
 \affiliation{
@@ -74,14 +64,11 @@
 \end{abstract}
 
 \input{introduction.tex}
-
-\section{Background}
-\subsection{Database System Architecture}
-\subsection{Machine Learning Methods}
-
+\input{background.tex}
 \input{parser.tex}
 \input{relational_engine.tex}
 \input{execution_engine.tex}
+\input{design_choices.tex}
 
 % \section{Excerpts from Papers}
 

@@ -4,3 +4,53 @@ We discus three main overarching design choices that one has to make when integr
 
 
 \subsection{External vs. Internal Integration}
+We found that there are two main engineering approaches for integrating ML components in to DBMSs: external vs. internal integration ~\cite{pavlo2019external}.
+
+\vspace{2mm}
+\noindent \textbf{External Integration.} Modern DBMSs are complex systems and they allow human database administrators to control the query execution performance by: (1) optimizing the physical database design, (2) providing query optimization hints, (3) knob tuning, and (4) resource provisioning.
+They also provide information about the system such as resource usage, query traces, and performance metrics.
+In this context the focus of externally integrated ML components is to provide recommendations to human database administrators or replace them and automatically perform the tasks using the standard configuration endpoints provided by the DBMS.
+
+An enterprise-grade DBMS typically requires decades of highly advanced software development efforts and thus there is huge resistance among DBMS developers to integrate new components that require significant architectural changes.
+External integration keeps the ML components outside the critical path of a DBMS and is still provides a value.
+For this reason, systems that follow the external integration paradigm have been successfully adopted by several enterprise DBMSs.
+
+However, external integration also faces several limitations.
+First developing multiple external components that operate on different sub-problem may lead to interference among the decisions taken by those systems.
+For example assume an external query optimization component which hints a specific query plan the to DBMS assuming the absence of a particular index.
+At the same time assume there is a another physical database design component that decides to create this index which renders the chosen evaluation plan become sub-optimal.
+Avoiding this kind of inferences requires coordination among different components, which is difficult to implement in external components.
+Second, external components for knob tuning and resource provisioning takes an iterative approach where they tryout number of different settings before picking the best option.
+Existing DBMSs are not optimized for such rapid experimentation and hence requires system down times or restarts for the configurations to take effect.
+This significantly increases the time required for knob tuning by an ML component.
+Finally, the system information metrics provided by the DBMSs are primarily intended to be consumed by human database administrators for diagnosing performance bottlenecks.
+Thus they can be too high-level for ML components to learn from.
+
+
+\vspace{2mm}
+\noindent \textbf{Internal Integration.} 
+Internal integration of ML components tries to mitigate much of the above mentioned limitations by changing the DBMS architecture to treat ML components as first class citizens.
+As a result ML components get more access to the low level information and more fine-grained control to the DBMS.
+Coherence among the decisions taken by multiple ML components inside a DBMS can be achieved by having a centralized coordinator that takes suggested actions from different ML components and execute them only if they don't interfere with other decisions.
+
+However, internal integration requires tight coupling between the components inside a DBMS and can pose query execution performance degradation when training the ML models.
+Hence, they are mostly applicable for new data system developments which are being developed from scratch (also called greenfield systems).
+In fact several vision systems have already proposed novel learned DBMS architectures.
+
+NoisePage~\cite{noisepage} is an in-memory  hybrid transitional and analytic processing DBMS, which can automatically optimize query execution without a human database administrator.
+Currently it can handle knob tuning, resource provisioning, and physical database design optimization.
+It has a modular architecture optimized for efficient offline training data collection by ML components.
+Training data for each module (e.g., transaction manager) can be obtained in isolation without the need of going through the entire DBMS execution path.
+These offline collected data is then combined with the data collected through online query execution to learn ML models.
+The ML pipeline in NoisePage has three main phases: 1) modeling, 2) planning, 3) deployment.
+In modeling stage it builds models to predict the future query workload and models to predict the behavior of system components under different configuration values.
+In the planning stage it uses reinforcement learning to pick actions based on the models trained in the modeling phase, instead of interacting with the actual system.
+Finally, in the deployment phase the chosen actions are applied and the observed performance metrics are later fed back to modelling and planning models to improve their performance.
+
+SageDB~\cite{sagedb} is another system which proposes a novel DBMS architecture that uses ML models combined with program synthesis techniques to generate internal system components like data structures and algorithms.
+In order to balance the execution time vs. accuracy it proposes using multiple ML models each specialized for a particular task.
+ML models in SageDB are optimized to capture the empirical data distribution of the data and not optimized for the ability to generalize to unseen data.
+In SageDB, these synthesized systems components are  used for optimizing data access (e.g., indices), query optimization (e.g., cardinality estimation), and query execution (e.g., sorting).
+
+
+\subsection{Learning from Workloads vs. Data}

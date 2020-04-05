@@ -53,4 +53,45 @@ ML models in SageDB are optimized to capture the empirical data distribution of 
 In SageDB, these synthesized systems components are  used for optimizing data access (e.g., indices), query optimization (e.g., cardinality estimation), and query execution (e.g., sorting).
 
 
-\subsection{Learning from Workloads vs. Data}
+\subsection{Learning from Workloads vs. Data} 
+The main goal of using ML for DBMS components is to improve the performance of the system for future query workloads.
+Thus one way for adopting ML methods is to learn from past or current (in the case of reinforcement learning) queries.
+But the performance of the queries is dependant on the state of the underlying data in the DBMS.
+Hence, in some cases, it is also possible to achieve the same goal by learning from the data.
+Next we explain some of the popular systems which adopts these two approaches and compare their pros and cons.
+
+\vspace{2mm}
+\noindent \textbf{Learning from Workloads.} Learning from workloads is the most widely used approach for integrating ML into DBMS across all components.
+For example, Seq2SQL~\cite{seq2sql} and SQLNet~\cite{sqlnet} use sample SQL query and natural language query pairs to learn an ML model to compile natural language queries into SQL queries.
+VerdictDB~\cite{verdict} learns from the results of past AQP queries to provide better error guarantees or reduce runtimes of future AQP queries.
+Systems like LEO~\cite{leo}, CardLearner~\cite{cardlearner}, QPPNet~\cite{qppnet}, and AutoAdmin~\cite{autoadmin} learns from past or current queries in order to improve the relational engine of the DBMS.
+OtterTune ~\cite{ottertune} and Bandit~\cite{bandit} also learns from past queries to optimizer for future queries.
+Learning from queries enable the ML models to learn a narrow scoped problem which is much easier to model/learn and hence improve the overall performance of the system.
+However, this approach faces three main challenges.
+First, collecting training data for this approach can be expensive as each query needs to be executed on large databases.
+Second, it does not generalize well for unseen workload queries and cause significant performance degradation at execution time.
+Third, changes in the workload patterns or underlying data requires capturing new training data and expensive retraining which can cause system downtime.
+
+\vspace{2mm}
+\noindent \textbf{Learning from Data.} More recently data-driven ML methods have been suggested.
+These methods train models to learn the joint probability distribution of the data and use these models to improve the DBMS performance.
+For example, DBEst~\cite{dbest} and DeepDB~\cite{deepdb} uses probability distribution models to answer AQP queries.
+Naru~\cite{naru} and DeepDB~\cite{deepdb} use probability distribution models in the relational engine to optimize cardinality estimates.
+They are also the main building block in learned data structures and algorithms such Learned Index~\cite{learnedindex}, FITing-Tree~\cite{fitingtree}, and XIndex~\cite{xindex}.
+These probability distribution models can be reused despite changes in the workload pattern.
+They are also more robust to small changes in the DBMS data.
+More importantly, \cite{deepdb} has shown that the same probability distribution model can used in multiple tasks such as AQP and cardinality estimation, reducing the total training time required.
+However, accurately capturing the joint probability distribution of a relational dataset with multiple tables a complex learning task which requires models with high learning capacity and training time.
+Furthermore, not all DBMS components can be purely learned from data (e.g., execution engine knob tuning).
+
+\vspace{2mm}
+\noindent \textbf{Hybrid Methods.} While most of the existing systems falls into one of the above two approaches, it would be interesting to explore possibility of combining both approaches.
+Some early work in this regard has been proposed in the XIndex~\cite{xindex} system.
+XIndex is a learned index structure which replaces B-tree indices.
+It does so by learning the empirical cumulative distribution function of the keys of the data.
+During training the goal is to minimize the maximum error made by the model for predicting the position of a key.
+But the performance of a particular workload will be dominated by the errors made by the model on the keys that are frequently used in the workload.
+Hence, XIndex performs second phase of learning where it dynamically further minimizes the error on the most frequently used keys.
+
+
+\subsection{Choice of the ML Paradigm}

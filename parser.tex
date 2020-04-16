@@ -1,11 +1,11 @@
 \section{Query Parser}
 The task of the query parsing sub-component in a DBMS is to check whether a given SQL query in text format is free from syntax and grammar errors and if so translate it into a relational algebra expression, which is a solved problem.
 Hence, most of the new work on query parsing focuses on supporting query modalities beyond text and relaxing the grammar of SQL to support natural language-based querying.
-Recent advancements in natural language processing using deep learning techniques provides a promising opportunity to achieve these goals.
+Recent advancements in natural language processing using deep learning techniques provide a promising opportunity to achieve these goals.
 
 SpeakQL~\cite{speakql} provides a speech-driven querying interface, which can be used to query data by speaking out a SQL query instead of typing it.
 It uses an off the shelf automatic speech recognition engine to compile a spoken SQL query into text form and use knowledge about the schema of the underlying data to refine the structure and the literals of the query.
-Seq2SQL~\cite{seq2sql} and SQLNet~\cite{sqlnet} are two systems that focuses on compiling natural language queries into SQL.
+Seq2SQL~\cite{seq2sql} and SQLNet~\cite{sqlnet} are two systems that focus on compiling natural language queries into SQL.
 Seq2SQL uses a large dataset (n=84,000) of manually annotated natural language-SQL pairs and trains a deep reinforcement learning model to compile natural language queries into SQL.
 SQLNet uses the same training dataset and uses a neural machine translation approach.
-While these systems have shown some early promising results for supporting natural language queries over single table data, their accuracy significantly suffers for complex queries that involves joins over multiple tables.
+While these systems have shown some early promising results for supporting natural language queries over single table data, their accuracy significantly suffers from complex queries that involve joins over multiple tables.

@@ -1,98 +1,98 @@
 \section{ML for Execution Engine}
-In this section we identify several prominent works that uses ML methods to either augment or replace critical components in a database execution engine.
+In this section, we identify several prominent works that use ML methods to either augment or replace critical components in a database execution engine.
 We categorize them into three major sub-areas: ML for 1) knob tuning, 2) scheduling and resource provisioning, and 3) data structures and algorithms.
 
 \subsection{Knob Tuning}
-The performance of the database execution engine is highly dependant on the chosen values of the tunable knobs which controls nearly all aspects of the runitme operations.
-For example these knobs control aspects such as how much memory to be used for caching data versus transaction log buffer, how often the data to be written to the disk, and things like query execution parallelism.
+The performance of the database execution engine is highly dependant on the chosen values of the tunable knobs which control nearly all aspects of the runtime operations.
+For example, these knobs control aspects such as how much memory to be used for caching data versus transaction log buffer, how often the data to be written to the disk, and things like query execution parallelism.
 Similar to physical database design, finding a good knob configuration for a target query workload is generally the responsibility of database administration personnel, for which they either use common sense heuristics and/or a trial and error procedure.
 Alternatively, one could use ML techniques to automatically find an optimal knob configuration for a target query workload.
 
 iTuned~\cite{ituned} approaches this problem by executing a series of carefully-planned experiments and picking the configuration which minimizes the overall workload time.
-Given a target query workload iTuned uses latin hypercube sampling to pick an initial set of configurations and execute them to obtain the execution time.
+Given a target query workload iTuned uses Latin hypercube sampling to pick an initial set of configurations and execute them to obtain the execution time.
 The results are then modeled using a Gaussian process representation to pick the next configuration to be executed.
 This process continues until a good enough configuration is found.
-It also uses several techniques to reduce the overall tuning time including: early elimination of configurations with insignificant improvements, executing parallel experiments, aborting less promising experiments early, and compressing the query workload.
+It also uses several techniques to reduce the overall tuning time including early elimination of configurations with insignificant improvements, executing parallel experiments, and compressing the query workload.
+
 Similarly, OtterTune~\cite{ottertune} also executes a series of experiments chosen by modeling a Gaussian representation process.
-However, instead of starting with a sampled set of initial configurations, it maps the current workload to a similar previous workload which has been already tuned, and use that to pick the next experiment configuration.
+However, instead of starting with a sampled set of initial configurations, it maps the current workload to a similar previous workload which has been already tuned and uses that to pick the next experiment configuration.
 Leveraging the learning from previous workloads helps OtterTune to finish the tuning process much faster than iTuned.
-Workload mapping is achieved through a workload characterization step which combines factor analysis (over metrics obtained through database monitoring tools) and k-mean clustering.
-It also prunes irrelevant knob configurations ranked using Lasso feature selection and incrementally increase the numbed of tuned configuration based on their importance as tuning progresses.
+Workload mapping is achieved through a workload characterization step which combines factor analysis (over metrics obtained through database monitoring tools) and k-means clustering.
+It also prunes irrelevant knob configurations ranked using Lasso feature selection and incrementally increase the number of tuned configuration based on their importance as tuning progresses.
+
 iBTune~\cite{ibtune} is a system for reducing buffer pool sizes of cloud OLTP database instances to reclaim memory while conforming to the service level agreements (SLA) on query response time.
 It iteratively uses data from other instances with similar workloads to choose a target buffer pool size using large deviation analysis.
-But before making the change, it uses a pairwise deep neural network to predict the new response time and proceeds only if the predicted value is within in the SLA.
+But before making the change, it uses a pairwise deep neural network to predict the new response time and proceeds only if the predicted value is within the SLA.
 
 One of the major bottlenecks for ML-based knob tuning methods is not having access to low-level/sub-component level system performance metrics.
 While database systems do provide metrics they often happen to be aggregated at the entire system level and are less informative to tune sub-component level knobs.
 Another bottleneck is the inability to change system configuration values without complete system restarts.
 Database systems are not designed to be tuned by iteratively executing multiple experiments. 
-However, ML-based methods require only the fly configuration testing, without which they incur significant overheads.
-
+However, ML-based methods require on the fly configuration testing, without which they incur significant overheads.
 
 \subsection{Resource Provisioning and Scheduling}
 Execution engines have to make several planning decisions to meet the service level objectives imposed by users as they execute QEPs.
-This includes resource \textit{provisioning}: deciding how many machine to be used for execution and/or \textit{scheduling}: deciding which QEP to be executed in which worker in which order.
+This includes resource \textit{provisioning}: deciding how many machines to be used for execution and/or \textit{scheduling}: deciding which QEP to be executed on which worker in which order.
 The emergence of cloud computing environments makes these planning decisions even more important because of their pay-as-you-go model.
-The existing approach taken by many database systems is to use human engineered rule or heuristics based approaches, which are often  too rigid and slow to respond for the rapid and dynamic query workloads.
+The existing approach taken by many database systems is to use human-engineered rules or heuristics-based approaches, which are often too rigid and slow to respond to the rapid and dynamic query workloads.
 Alternatively, ML provides an opportunity to automatically learn these planning decisions in a more robust and flexible manner using past query workloads.
 
 WiSeDB ~\cite{wisedb} is a workload management service for cloud databases, which holistically addresses both the resource provisioning and scheduling problems.
-It takes in a query workload, the runtime of each query on each machine type, a user defined target performance goal (e.g., average/max latency, percentile-based metrics), and recommends a set of strategies and their associated costs to the user.
+It takes in a query workload, the runtime of each query on each machine type, a user-defined target performance goal (e.g., average/max latency, percentile-based metrics), and recommends a set of strategies and their associated costs to the user.
 Under certain assumptions, solving the original planning problem can be reduced to the bin packing problem and it is an NP-hard problem.
-WiSeDB samples a large number of small workloads from the original workload and solves them using brute force graph search algorithm.
-It then extracts decision and features from each of the decisions made by the graph algorithm and trains a decision tree model.
+WiSeDB samples a large number of small workloads from the original workload and solves them using a brute force graph search algorithm.
+It then extracts decisions and features from each of the decisions made by the graph algorithm and trains a decision tree model.
 Finally, this decision tree model is used to generate the planning strategies and their associated costs for the original workload.
-By using a learning based adaptive learning strategy, WiSeDB is able to outperform many heuristic-based techniques with little training overhead.
-One of the major limitation of WiSeDB is that it requires the user to provide a cost estimates for each query, and accurately estimating the cost of previously unseen queries is an open challenge.
+By using a learning-based adaptive learning strategy, WiSeDB is able to outperform many heuristic-based techniques with little training overhead.
+One of the major limitations of WiSeDB is that it requires the user to provide cost estimates for each query, and accurately estimating the cost of previously unseen queries is an open challenge.
 
 
 Similar to WiSeDB, Bandit~\cite{bandit} is another system for solving the provisioning and scheduling problem of cloud database systems which focuses on online scheduling rather than batch scheduling.
-It models the planning problem as a multi-tiered contextual multi-arm bandit problem (CMAB), a well known reinforcement learning technique.
-The tiers in the CMAB corresponds to the different VM types and their are orgarnized the descending order of their capacity/cost. 
+It models the planning problem as a multi-tiered contextual multi-arm bandit problem (CMAB), a well-known reinforcement learning technique.
+The tiers in the CMAB corresponds to the different VM types and they are organized in the descending order of their capacity/cost. 
 The goal of the CMAB is to reduce the overall cost, which can be both monetary cost or cost due to not meeting a deadline.
-When a new query arrives, starting from the first VM of the first tier the CMAB iteratively makes one of three choices, 1) assign the query to the current machine, 2) send the query to next machine of the current tier, and 3) send the query to the next tier.
-As the context it uses features from both the query and the current state of the VM. Hence, it is able to implicitly estimate the cost of a query as part of the learning problem and support previously unseen queries.
-PerfEnforce~\cite{perfenforce} also proposes ML techniques based reinforcement learning and multi-layer perceptrons to automatically scale the size of a data processing cluster to meet the user-defined target performance goal.
+When a new query arrives, starting from the first VM of the first tier the CMAB model iteratively makes one of three choices, 1) assign the query to the current machine, 2) send the query to next machine of the current tier, and 3) send the query to the next tier.
+As the context, it uses features from both the query and the current state of the VM. Hence, it is able to implicitly estimate the cost of a query as part of the learning problem and support previously unseen queries.
+PerfEnforce~\cite{perfenforce} is another system that uses ML techniques based on reinforcement learning and multi-layer perceptrons to automatically scale the size of a data processing cluster to meet the user-defined target performance goal.
 
-While the above systems have shown promising results on the ability of replacing provisioning and scheduling components using ML, there has not been much adoption in read-world systems, and their is a reluctance among systems developers to put scalability decisions in the hands of machine learning algorithms.
-One of the major reasons for this is the inability of ML techniques to provide bounds on the worse case scenario.
+While the above systems have shown promising results on the ability to replace provisioning and scheduling components using ML, there has not been much adoption in real-world systems, and there is a reluctance among systems developers to put scalability decisions in the hands of machine learning algorithms.
+One of the major reasons for this is the inability of ML techniques to provide bounds on the worst-case scenario.
 But as ML techniques get more robust, it can be expected that heuristics-based existing planning modules will get replaced by learned components.
 
-
 \subsection{Data Structures and Algorithms}
-Every single operation that is executed inside an execution engine heavily relies on core data structures such as index structures and algorithms such as sorting.
-These data structures and algorithms does not make any assumptions on the distribution of the data and gives guarantees on the worst case performance.
-However, in some cases if we know certain properties about the distribution of the underlying data, it is possible to come up with data structures and algorithms that can yield superior performance compared to the generic ones.
-On the other hand, ML provides a flexible framework for learning data distribution from the data.
-Thus, a recent line of research have shown the possibility of using ML models to replace core data structures algorithms to achieve superior performances for specific use cases.
+Every operation that is executed by the execution engine heavily relies on core data structures such as index structures and algorithms such as sorting.
+These data structures and algorithms do not make any assumptions on the distribution of the data and give guarantees on the worst-case performance.
+However, in some cases, if we know certain properties about the distribution of the underlying data, it is possible to come up with data structures and algorithms that can yield superior performance.
+ML provides a flexible framework for learning the empirical data distribution and a recent line of research has shown the possibility of using ML models to replace core data structures algorithms in DBMSs.
 
-Learned Index~\cite{learnedindex} is the very first system to propose the idea of using ML models to replace core data structures and algorithms, focusing mainly on B-Tree indices. 
+Learned Index~\cite{learnedindex} is the first system to propose the idea of using ML models to replace core data structures and algorithms. It focussed mainly on replacing B-Tree indices. 
 Given a key, what a B-Tree index essentially does is finding its position on a sorted list using a series of tree traversals.
-We also get a nice guarantee on the error on the selected position: the maximum error is bounded by the page size.
-In this sense a B-Tree index is a model which captures the cumulative distribution function (CDF) of the key values.
-Thus, it is possible to replace B-Tree index with an ML model which is trained to capture the CDF of the key values.
-The error guarantee of the ML model can be found during training, which is the maximum offset between the predicted and the actual position.
-Interestingly, unlike other ML applications the objective here is to minimize training error and not the generalization error.
+B-Trees also give a guarantee on the error on the selected position: the maximum error is bounded by the page size.
+In this sense, a B-Tree index is a model that captures the cumulative distribution function (CDF) of the key values.
+Thus, it is possible to replace the B-Tree index with an ML model that is trained to capture the CDF of the keys.
+The error guarantee of the ML model can be found during training, which is the maximum training error for any key.
+Interestingly, unlike other ML applications, the objective here is to minimize the training error and not the generalization error.
 The advantage of replacing a B-Tree index using an ML model is that it reduces both the lookup time memory footprint of the index.
-FITing-Tree~\cite{fitingtree} is another system that replaces B-Tree indices using learned ML models.
-It uses a set of piece-wise disjoint linear functions to approximate the CDF distribution of the key space and uses a conventional B-Tree index to map a key to the correct linear function.
-Using linear functions helps FITing-Tree achieve fast look-ups and also support inserts, which was one of the major limitations of Learned Index system.
-It also provides a tunable know to make the index optimize either for faster look-ups or smaller memory footprint.
-XIndex~\cite{xindex} is a concurrent learned index which support read, write, and update operations.
-The architecture of XIndex is similar to that of FITing-Tree.
-However, the root node in XIndex also uses a linear model unlike the B-Tree index in the FITing-Tree.
-For enabling concurrent updates it uses a delta index and periodically runs a two-phase compaction scheme to merge and copy the delta index with the main index structure.
-Concurrency during this compaction stage is enabled through classical concurrency constructs such as read-copy-update barrier.
-In addition to this XIndex also adapts its structure at runtime to optimize for the query distribution.
-During learning, both Learned Index and FITing-Tree try to minimize the worst-case error.
-But in practice most query workloads are highly skewed and their runtime performance will be determined by the performance on a small set of hot keys.
-XIndex monitors the observed error during runtime and tries to split the regions that observe high error into multiple models in order to reduce the error.
 
-Apart from replacing B-Tree indices, Learned Index system also proposed methods to replaced several other data structures and algorithms using learned ML models.
-For example one of main issues with HashMap structures is getting hash collisions which increases the latency of retrievals.
+FITing-Tree~\cite{fitingtree} is another system that replaces B-Tree indices using learned ML models.
+It uses a set of piece-wise disjoint linear functions to approximate the CDF distribution of the keys and uses a conventional B-Tree index to map a key to the correct linear function.
+Using linear functions helps FITing-Tree achieve fast look-ups and also support inserts, which was one of the major limitations of the Learned Index system.
+It also provides a tunable knob to make the index optimize either for faster look-ups or smaller memory footprint.
+
+XIndex~\cite{xindex} is a concurrent learned index which supports read, write, and update operations.
+The architecture of XIndex is similar to that of FITing-Tree.
+However, the root node in XIndex also uses a linear model, unlike the B-Tree index in the FITing-Tree.
+For enabling concurrent updates it uses a delta index and periodically runs a two-phase compaction scheme to merge and copy the delta index with the main index structure.
+Concurrency during this compaction stage is enabled through classical concurrency constructs such as the read-copy-update barrier.
+In addition to this, XIndex also adapts its structure at runtime to optimize for the query distribution.
+During learning, both Learned Index and FITing-Tree try to minimize the worst-case error.
+In practice, most query workloads are highly skewed and their runtime performance will be determined by the performance on a small set of hotkeys.
+XIndex monitors the observed error during runtime and tries to split the regions that observe high error into multiple models to reduce the error.
+
+Learned Index system also proposed methods to replaced several other DBMS data structures and algorithms using learned ML models such as learned hash-maps, sorting, and bloom filters.
+One of the main issues with HashMap structures is getting hash collisions which increase the latency of retrievals.
 This happens when multiple keys getting mapped to the same hash bucket.
-Similar to learned index, if we train an ML model to capture the CDF of the keys, we can replace hash function with that ML model to potentially reduce the number of hash collisions.
-The same CDF model can be used to sort the data more efficiently by first ordering the data in nearly sorted order using the CDF model and finally using insertion sort.
-Bloom filters are another popular data structure in database systems which are used as existence indices.
-They can be replaced by training a classification model for which the decision threshold is chosen such that the false negative rate is zero.
-While these systems have shown initial promising results for the feasibility of replacing core data structures and algorithms using ML models, much work is still needed to make them available in practical systems.
+An ML model which captures the CDF can be used to replace the hash-function and thus reduce the number of hash collisions.
+The same CDF model can be used to sort the data more efficiently by first ordering the data in nearly sorted order and then using insertion/bubble sort.
+Bloom filters can be replaced by training a classification model for which the decision threshold is chosen such that the false-negative rate is zero.
+While these systems have shown initial promising results for the feasibility of replacing core data structures and algorithms using ML models, much work is still needed to make them available for enterprise DBMSs.

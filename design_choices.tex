@@ -3,7 +3,7 @@
 We discuss three main overarching design choices that one has to make when integrating ML components with DBMSs: 1) external vs. internal integration, 2)  learning from workloads vs. data and 3) choice of ML paradigm.
 
 
-\subsection{External vs. Internal Integration}
+\subsection{Integration Mode}
 We found that there are two main engineering approaches for integrating ML components into DBMSs: external vs. internal integration ~\cite{pavlo2019external}.
 
 \vspace{2mm}
@@ -51,7 +51,7 @@ ML models in SageDB are optimized to capture the empirical data distribution of 
 These synthesized systems components are used for optimizing data access (e.g., indices), query optimization (e.g., cardinality estimation), and query execution (e.g., sorting).
 
 
-\subsection{Learning from Workloads vs. DB-Resident Data} 
+\subsection{Learning Source} 
 The main goal of using ML for DBMS components is to improve the performance of the system for future query workloads.
 Thus one way for adopting ML methods is to learn from past or current (in the case of reinforcement learning) queries.
 But the performance of the queries is dependant on the state of the underlying data in the DBMS.

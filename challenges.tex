@@ -6,22 +6,22 @@ Next, we identify three such major open challenges:
 
 
 \vspace{2mm}
-\noindent \textbf{1. Worst-case Guarantees and Graceful Performance Degradation.} Integrating ML methods into internal DBMS components have proven to improve the average query execution performance.
-However, ML models can have predictions that are significantly off that cause huge unexpected performance degradation.
+\noindent \textbf{1. Robustness.} While ML methods improve the average query execution performance, they can make mispredictions that are significantly off and lend the system become un-robust.
 On the contrary, traditional software components are designed to minimize the worst-case performance cost.
-Worst-case performance guarantees are a crucial aspect of software systems as one single fault can have ripple effects and render the entire system unusable eventually (e.g., the evaluation time difference between a good QEP and bad QEP can be orders of magnitude).
-Understanding the worst-case behavior of ML-driven software components is still an untouched area and it is possible that coming up with tight guarantees is a very hard theoretical problem.
-
-Assuming that coming up with tight worst-case guarantees is a hard/unsolvable task, another approach to solve the same problem would be to integrate adaptive execution strategies with ML-driven components.
-This requires observing the outcome of the decisions taken by ML-driven components and dynamically adjust them if the taken decision turns out to be a bad one to achieve graceful performance degradation.
-Some initial work on this regard was proposed in SkinnerDB~\cite{skinnerdb} where it performs intra-query RL for choosing the best join ordering by switching between different orders and provide worst-case performance guarantees.
-However, this space is still very open and much work is needed in order to make practical adoption of ML-driven components in DBMSs more pervasive.
+Worst-case performance guarantees are a crucial aspect of software systems as one single fault can have ripple effects and make the entire system unusable eventually (e.g., the evaluation time difference between a good QEP and bad QEP can be orders of magnitude big).
+Understanding the worst-case behavior of ML-driven software components is still an untouched area and it is possible that coming up with tight theoretical guarantees is a very hard problem.
+ 
+Another approach to solving the same problem would be to integrate adaptive query execution strategies with ML-driven components.
+This requires observing the outcome of the decisions taken by ML-driven components and dynamically adjusting them when a performance degradation is detected.
+Some initial work on this regard is proposed in SkinnerDB~\cite{skinnerdb}.
+SkinnerDB finds the best join ordering for a query by using an intra-query RL method that switches between different orders.
+It also provides worst-case performance guarantees for this method.
+However, this space is still very open and much work is needed to make ML-driven DBMS internal components more robust.
 
 
 \vspace{2mm}
-\noindent \textbf{2. Rethinking DBMS Architecture} DBMS architectures were designed several decades ago and clearly were not designed with autonomous control in mind.
-As a result, several fundamental issues have to be faced when integrating ML into DBMS components.
-
+\noindent \textbf{2. DBMS Architecture} When people designed DBMS architectures several decades ago, enabling autonomous control was clearly not a design goal.
+As a result, when one integrates ML into DBMS components they have to face several fundamental architectural limitations.
 For example, the separation of concerns such that the relational engine making all the intelligent decisions and the execution engine passively executing them no longer holds.
 Decisions taken by the relational engine when compiling the QEP may turn out to be wrong when executing it.
 Thus the relational engine should be able to observe the performance of a QEP as it executes and refine the decisions as new information becomes available.
@@ -30,21 +30,20 @@ Such an approach will require more tight-coupling between the relational and exe
 Also, integrating ML into DBMS components requires the ability to easily experiment and having access to fine-grained system information.
 In current DBMS systems, especially with external integration, it is very hard to profile and generate training data for a specific component without invoking the full QEP execution path, which is costly.
 Furthermore, the level of system information exposed by the DBMS is very coarse-grained.
-They are intended to be consumed by humans for debugging purposes and are too high-level for the ML models to learn.
-These limitations have been already identified in some cases and are being actively worked on~\cite{noisepage}.
+They are intended to be consumed by humans for debugging purposes and are too high-level for ML training.
+Some of these limitations have been already identified and are being actively worked on~\cite{noisepage}.
 
 \vspace{2mm}
-\noindent \textbf{3. Enable Transfer Learning} ML has proven the ability to automatically learn and optimize the performance of DBMS internal components.
-However, there is limited success in learning transferable knowledge that can be reused in multiple different settings.
-For example, most of the ML models used in existing systems perform poorly when there is a deviation in the query workload or a change in available system resources.
-The situation is even worse when applied to a new DBMS instance or it is simply not possible to apply to a new instance at-all.
-This significantly increases the cost of training and maintaining ML models due to needing large training datasets and continuous retraining in the face of changes.
+\noindent \textbf{3. Transfer Learning} There is limited success in learning transferable knowledge that can be reused in multiple different settings.
+For example, most of the ML models used in existing DBMS components perform poorly when there is a deviation in the query workload or a change in available system resources.
+The situation is even worse when they are applied to a new DBMS instance or it is not possible to apply to a new instance at-all.
+This significantly increases the cost of training and maintaining ML models and faces problems like cold-start and the need to continuously retrain to keep track of changes.
 
-\textit{Transfer Learning} is a technique popular in vision and natural language processing fields that can be applied in the DBMS setting too.
+\textit{Transfer Learning} is a technique that can be applied to overcome this limitation, which is popular in other fields such as computer vision and natural language processing.
 Instead of training separate models for different tasks from scratch, transfer learning enables us to reuse a master model and fine-tune it to the task at hand using limited resources (e.g., compute power and training data).
 This master model has to be trained on a very-large dataset such that it can learn most of the relevant information for any task.
-A popular transfer learning dataset in the computer vision field is the \textit{ImageNet} dataset which consists of over 1 million hand-labeled images.
+\textit{ImageNet} is a popular computer vision transfer learning dataset that has over 1 million hand-labeled images.
 Identifying and curating such a dataset requires solving several open challenges.
-For example, one has to select a common representation format that can capture the data schema, data statistics, query structure, and hardware resources.
-Also, collecting such a large dataset is also a challenge.
-However, migration DBMSs into the cloud provides a unique opportunity to centrally collect all the information.
+For example, one has to select a common representation format that can capture the data schema, data statistics, query structure, and hardware properties.
+Collecting such a large dataset is also a challenge.
+However, the migration of DBMSs into the cloud provides a unique opportunity to centrally collect all the relevant information.

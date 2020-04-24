@@ -6,7 +6,7 @@ Next, we identify three such major open challenges:
 
 
 \vspace{2mm}
-\noindent \textbf{1. Robustness.} While ML methods improve the average query execution performance, they can make mispredictions that are significantly off and lend the system become un-robust.
+\noindent \textbf{1. Improving Robustness.} While ML methods improve the average query execution performance, they can make mispredictions that are significantly off and lend the system become un-robust.
 On the contrary, traditional software components are designed to minimize the worst-case performance cost.
 Worst-case performance guarantees are a crucial aspect of software systems as one single fault can have ripple effects and make the entire system unusable eventually (e.g., the evaluation time difference between a good QEP and bad QEP can be orders of magnitude big).
 Understanding the worst-case behavior of ML-driven software components is still an untouched area and it is possible that coming up with tight theoretical guarantees is a very hard problem.
@@ -20,7 +20,7 @@ However, this space is still very open and much work is needed to make ML-driven
 
 
 \vspace{2mm}
-\noindent \textbf{2. DBMS Architecture} When people designed DBMS architectures several decades ago, enabling autonomous control was clearly not a design goal.
+\noindent \textbf{2. Rethinking DBMS Architecture} When people designed DBMS architectures several decades ago, enabling autonomous control was clearly not a design goal.
 As a result, when one integrates ML into DBMS components they have to face several fundamental architectural limitations.
 For example, the separation of concerns such that the relational engine making all the intelligent decisions and the execution engine passively executing them no longer holds.
 Decisions taken by the relational engine when compiling the QEP may turn out to be wrong when executing it.
@@ -34,7 +34,7 @@ They are intended to be consumed by humans for debugging purposes and are too hi
 Some of these limitations have been already identified and are being actively worked on~\cite{noisepage}.
 
 \vspace{2mm}
-\noindent \textbf{3. Transfer Learning} There is limited success in learning transferable knowledge that can be reused in multiple different settings.
+\noindent \textbf{3. Enabling Transfer Learning} There is limited success in learning transferable knowledge that can be reused in multiple different settings.
 For example, most of the ML models used in existing DBMS components perform poorly when there is a deviation in the query workload or a change in available system resources.
 The situation is even worse when they are applied to a new DBMS instance or it is not possible to apply to a new instance at-all.
 This significantly increases the cost of training and maintaining ML models and faces problems like cold-start and the need to continuously retrain to keep track of changes.

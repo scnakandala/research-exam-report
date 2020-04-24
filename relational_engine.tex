@@ -9,7 +9,7 @@ To achieve this, traditional query optimizers perform a search over the space of
 However, estimating the total cost is a complex task and it is often approximated by estimating the total size of the intermediate tuples generated during query evaluation.
 This is called the \textit{cardinality estimation} problem, which remains still an unsolved problem despite advancements over many decades. 
 Database optimizers often make assumptions such as uniformity, independence, and the principle of inclusion~\cite{leis2018query} to perform cardinality estimation.
-These assumptions often do not hold in real data and optimizers often under- or over-estimate the query cost and pick sub-optimal query evaluation plans, which can be worse by orders of magnitude.
+These assumptions often do not hold in real data and optimizers often\thanya{does the word often needed here} under- or over-estimate the query cost and pick sub-optimal query evaluation plans, which can be worse by orders\thanya{does the word often needed here} of magnitude.
 We found that the use of ML for query optimization can be broadly divided into two major approaches.
 The first approach is to train ML models for cardinality estimation and integrate them with the existing search strategies in the optimizer.
 The second approach is to completely replace the traditional query optimizer by using ML to generate the QEP, end-to-end.

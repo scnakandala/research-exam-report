@@ -1,6 +1,6 @@
 \section{Design Choices}
 
-We discuss three main overarching design choices that one has to make when integrating ML components with DBMSs: 1) external vs. internal integration, 2)  learning from workloads vs. data and 3) choice of ML paradigm.
+We discuss three main overarching design choices that one has to make when integrating ML components with DBMSs: 1) integration mode, 2)  learning source and 3) choice of ML paradigm.
 
 
 \subsection{Integration Mode}
@@ -12,15 +12,15 @@ They also provide information about the system such as resource usage, query tra
 Under this context, the focus of externally integrated ML components is to provide recommendations to human database administrators or replace them and automatically perform the tasks using the standard configuration endpoints provided by the DBMS.
 
 An enterprise-grade DBMS typically requires decades of highly advanced software development efforts and thus there is huge resistance among DBMS developers to integrate new components that require significant architectural changes.
-External integration keeps the ML components outside the critical path of a DBMS and is still provides a value.
-For this reason, systems that follow the external integration paradigm have been successfully adopted by several enterprise DBMSs.
+External integration keeps the ML components outside the critical path of a DBMS and still provides a value.
+For this reason, most of the systems surveyed in this paper fall into this category (see Figure 1) and some have even been successfully adopted by several enterprise DBMSs.
 
 However, external integration also faces several limitations.
 First developing multiple external components that operate on different sub-problems may lead to interference among the decisions taken by those systems.
 For example, assume an external query optimization component that hints a specific query plan to DBMS assuming the absence of a particular index.
 At the same time assume there is another physical database design component that decides to create this index which renders the chosen evaluation plan become sub-optimal.
 Avoiding this kind of interference requires coordination among different components, which is difficult to implement in external components.
-Second, external components for knob tuning and resource provisioning take an iterative approach where they try out a number of different settings before picking the best option.
+Second, external components for knob tuning and resource provisioning take an iterative approach where they try out several different settings before picking the best option.
 Existing DBMSs are not optimized for such rapid experimentation and hence require system downtimes or restarts for the configurations to take effect.
 This significantly increases the time required for knob tuning by an ML component.
 Finally, the system information metrics provided by the DBMSs are primarily intended to be consumed by human database administrators for diagnosing performance bottlenecks.
@@ -55,16 +55,13 @@ These synthesized systems components are used for optimizing data access (e.g., 
 The main goal of using ML for DBMS components is to improve the performance of the system for future query workloads.
 Thus one way for adopting ML methods is to learn from past or current (in the case of reinforcement learning) queries.
 But the performance of the queries is dependant on the state of the underlying data in the DBMS.
-Hence, in some cases, it is also possible to achieve the same goal by learning from the data.
+Hence, in some cases, it is also possible to achieve the same goal by learning directly from the data.
 % Next we explain some of the popular systems which adopts these two approaches and compare their pros and cons.
 
 \vspace{2mm}
-\noindent \textbf{Learning from Workloads.} Learning from workloads is the most widely used approach for integrating ML into DBMS across all components.
-For example, Seq2SQL~\cite{seq2sql} and SQLNet~\cite{sqlnet} use sample SQL query and natural language query pairs to learn an ML model to compile natural language queries into SQL queries.
-VerdictDB~\cite{verdict} learns from the results of past AQP queries to provide better error guarantees or reduce runtimes of future AQP queries.
-Systems like LEO~\cite{leo}, CardLearner~\cite{cardlearner}, QPPNet~\cite{qppnet}, and AutoAdmin~\cite{autoadmin} learns from past or current queries in order to improve the relational engine of the DBMS.
-OtterTune ~\cite{ottertune} and Bandit~\cite{bandit} also learns from past queries to optimizer for future queries.
+\noindent \textbf{Learning from Queries.} As shown in Figure 1, learning from query workloads is the most widely used approach for integrating ML into DBMS across all components.
 Learning from queries enables the ML models to learn a narrow scoped problem which is much easier to model/learn and hence improve the overall performance of the system.
+
 However, this approach faces three main challenges.
 First, collecting training data for this approach can be expensive as each query needs to be executed on large databases.
 Second, it does not generalize well for unseen workload queries and causes significant performance degradation at execution time.
@@ -76,7 +73,8 @@ These systems train models to learn the empirical data distribution of the data 
 For example, DBEst~\cite{dbest} and DeepDB~\cite{deepdb} uses probability distribution models to answer AQP queries.
 Naru~\cite{naru} and DeepDB~\cite{deepdb} use joint probability distribution models in the relational engine to optimize cardinality estimates.
 Empirical data distribution models are also the main building block in learned data structures and algorithms such as Learned Index~\cite{learnedindex}, FITing-Tree~\cite{fitingtree}, and XIndex~\cite{xindex}.
-They can be reused despite changes in the workload pattern and are also more robust to small changes in the DBMS-resident data.
+
+ML models trained using data can be reused despite changes in the workload pattern and are also more robust to small changes in the data.
 More importantly, \cite{deepdb} has shown that the same probability distribution model can be used in multiple tasks such as AQP and cardinality estimation, reducing the total training time required.
 However, accurately capturing the joint probability distribution of a relational dataset with multiple tables is a complex learning task that requires models with high learning capacity and training time.
 Furthermore, not all DBMS components can be purely learned from data (e.g., execution engine knob tuning).
@@ -92,7 +90,7 @@ Hence, XIndex performs the second phase of learning where it dynamically further
 
 
 \subsection{Choice of the ML Paradigm}
-We cover the use of different ML model families and learning paradigms for integrating ML into DBMSs.
+We cover the use of different ML model and learning paradigms for integrating ML into DBMSs.
 
 \subsubsection{ML Model Family}
 We observed two prominent families of ML models: 1) deep learning and 2) classical ML.
@@ -104,37 +102,37 @@ They have shown superior performance in hard tasks such as in natural language p
 As a result, the same deep NLP models have been used in systems like SpeakQL~\cite{speakql}, SeqSQL~\cite{seq2sql}, and SQLNet~\cite{sqlnet} to provide spoken and/or natural language interfaces for DBMSs.
 Naru ~\cite{naru} uses a transformer-based deep learning model to learn the joint probability distribution of the data for cardinality estimation.
 Neo~\cite{neo}, DQM~\cite{dqm}, and iBTune~\cite{ibtune} also use deep learning models for query optimization (QEP generation), physical database design (materialization optimization), and knob tuning (buffer size tuning), respectively.
+
 However, the high model capacity of deep learning models and their ability to learn highly accurate models comes at a cost.
 First, these models require significantly large amounts of training data without which the models will start to overfit. In many DBMS components, collecting large amounts of training data is expensive as the queries have to be executed potentially on large databases.
-Second, deep learning models are highly compute-intensive which can require few hours to a few days of training even when using expensive hardware accelerators such as GPUs.
-Furthermore, typically their inference times are in few hundreds of milliseconds and do not match with the performance requirements of the DBMS components such as cardinality estimators and indices which have to be in the order of few milliseconds.
-Finally, the explainability and debuggability of deep learning are still an active area of research and there is minimal understanding of the internal workings of them.
-% This is also a major limitation for integrating deep learning methods into critical DBMS components.
+Second, deep learning models are highly compute-intensive which can require few hours to a few days of training even when using expensive hardware accelerators such as GPUs. This can cause degradation of DBMS query execution performance.
+Furthermore, typically deep learning inference times are in few hundreds of milliseconds and do not match with the performance requirements of the DBMS components such as cardinality estimators and indices which have to be in the order of few milliseconds.
+Finally, the explainability/debuggability of deep learning models is still an active area of research and there is minimal understanding of the internal workings of them.
 As a result, while deep learning-based methods have shown promising accuracy results, they are not yet widely integrated into enterprise DBMSs due to the above open challenges.
 
 
 \vspace{2mm}
-\noindent \textbf{Classical ML.} Classical ML encompasses all ML model families except deep learning models.
-We found that classical ML-based methods are widely used to integrate ML into DBMS components and some of them (e.g., LEO~\cite{leo}, CardLearner~\cite{cardlearner}, AutoAdmin~\cite{autoadmin}, and VerdictDB~\cite{verdict}) have been integrated in the enterprise systems.
+\noindent \textbf{Classical ML.} We found that classical ML-based methods are widely used to integrate ML into DBMS components and some of them (e.g., LEO~\cite{leo}, CardLearner~\cite{cardlearner}, AutoAdmin~\cite{autoadmin}, and VerdictDB~\cite{verdict}) have been even integrated in the enterprise systems.
 Classical ML methods overcome much of the limitations of deep learning methods: they are less compute-intensive to train, require much less training data, have faster inference times, and generate much easy to explain predictions.
-However, most classical ML models are known to have fewer model capacities and thus less predictive power compared to deep learning models.
-
+However, most classical ML models are known to have fewer model capacities and thus less predictive power compared to deep learning models. Thus their accuracy can be lower.
 
 
 \subsubsection{Learning Paradigm}
 We explain the use of three learning paradigms that systems have used to integrate ML into DBMSs: 1) supervised learning, 2) reinforcement learning, and 3) unsupervised learning.
 
 \vspace{2mm}
-\noindent \textbf{Supervised Learning.} Out of the systems we surveyed, the supervised learning approach is the most widely used learning paradigm.
+\noindent \textbf{Supervised Learning.} Out of the systems we surveyed supervised learning approach is the most widely used learning paradigm (see Figure 1).
 The training data required for supervised learning is collected either beforehand or continuously during query execution.
 Seq2SQL~\cite{seq2sql} and SQLNet~\cite{sqlnet} use a large manually generated dataset of SQL and natural language query pairs.
 Most other systems (e.g., CardLearner~\cite{cardlearner}, QPPNet~\cite{qppnet}, Naru~\cite{naru}, AutoAdmin~\cite{autoadmin, autoadmin_2}, and Learned Index ~\cite{learnedindex}) preform initial training from previously collected training data and then perform periodic retraining as new data becomes available or the query workload or the data significantly change.
-In some cases collecting training data can be expensive as it requires executing a large number of queries potentially on large databases.
-However, the prevalence of cloud databases has mitigated these issues as cloud operators can have access to large amounts of query execution traces from many tenants.
+
+In some cases, collecting training data can be expensive as it requires executing a large number of queries potentially on large databases.
+However, the prevalence of cloud databases has mitigated these issues as cloud operators have access to large amounts of query execution traces from many tenants.
 
 \vspace{2mm}
 \noindent \textbf{Reinforcement Learning.} Reinforcement learning (RL) methods are particularly applicable when a system component has to make a series of decisions and the reward of each decision is not directly observable.
 Thus, RL methods have been used in tasks including QEP generation (e.g., SkinnerDB~\cite{skinnerdb}, ReJoin~\cite{rejoin}, Neo~\cite{neo}), materialization optimization (e.g., DQM~\cite{dqm}) and scheduling (e.g., Bandit~\cite{bandit}).
+
 RL methods perform on the job training and collect as the DBMS execute queries.
 Initially, they may generate worse results as the models have not converged yet.
 To overcome this, one could use a bootstrapping strategy called  \textit{learn by demonstration} where the existing DBMS component is used to generate initial training data for the RL model to bootstrap.

@@ -25,25 +25,25 @@ It iteratively uses data from other instances with similar workloads to choose a
 But before making the change, it uses a pairwise deep neural network to predict the new response time and proceeds only if the predicted value is within the SLA.
 
 One of the major bottlenecks for ML-based knob tuning methods is not having access to low-level/sub-component level system performance metrics.
-While database systems do provide metrics they often happen to be aggregated at the entire system level and are less informative to tune sub-component level knobs.
+While database systems do provide metrics, they often happen to be aggregated at the entire system level and are less informative to tune sub-component level knobs.
 Another bottleneck is the inability to change system configuration values without complete system restarts.
 Database systems are not designed to be tuned by iteratively executing multiple experiments. 
-However, ML-based methods require on the fly configuration testing, without which they incur significant overheads.
+But, ML-based methods require on the fly configuration testing which incurs significant overheads.
 
 \subsection{Resource Provisioning and Scheduling}
 Execution engines have to make several planning decisions to meet the service level objectives imposed by users as they execute QEPs.
-This includes resource \textit{provisioning}: deciding how many machines to be used for execution and/or \textit{scheduling}: deciding which QEP to be executed on which worker in which order.
+This includes resource \textit{provisioning}: deciding how many machines to be used for execution and/or \textit{scheduling}: deciding which QEP to be executed on which worker and in which order.
 The emergence of cloud computing environments makes these planning decisions even more important because of their pay-as-you-go model.
 The existing approach taken by many database systems is to use human-engineered rules or heuristics-based approaches, which are often too rigid and slow to respond to the rapid and dynamic query workloads.
-Alternatively, ML provides an opportunity to automatically learn these planning decisions in a more robust and flexible manner using past query workloads.
+Alternatively, ML provides an opportunity to automatically learn these planning decisions more robustly and flexibly using past query workloads.
 
 WiSeDB ~\cite{wisedb} is a workload management service for cloud databases, which holistically addresses both the resource provisioning and scheduling problems.
 It takes in a query workload, the runtime of each query on each machine type, a user-defined target performance goal (e.g., average/max latency, percentile-based metrics), and recommends a set of strategies and their associated costs to the user.
-Under certain assumptions, solving the original planning problem can be reduced to the bin packing problem and it is an NP-hard problem.
+Under certain assumptions, solving the original planning problem can be reduced to the bin packing problem which is an NP-hard problem.
 WiSeDB samples a large number of small workloads from the original workload and solves them using a brute force graph search algorithm.
 It then extracts decisions and features from each of the decisions made by the graph algorithm and trains a decision tree model.
 Finally, this decision tree model is used to generate the planning strategies and their associated costs for the original workload.
-By using a learning-based adaptive learning strategy, WiSeDB is able to outperform many heuristic-based techniques with little training overhead.
+By using a learning-based adaptive learning strategy, WiSeDB can outperform many heuristic-based techniques with little training overhead.
 One of the major limitations of WiSeDB is that it requires the user to provide cost estimates for each query, and accurately estimating the cost of previously unseen queries is an open challenge.
 
 
@@ -52,12 +52,12 @@ It models the planning problem as a multi-tiered contextual multi-arm bandit pro
 The tiers in the CMAB corresponds to the different VM types and they are organized in the descending order of their capacity/cost. 
 The goal of the CMAB is to reduce the overall cost, which can be both monetary cost or cost due to not meeting a deadline.
 When a new query arrives, starting from the first VM of the first tier the CMAB model iteratively makes one of three choices, 1) assign the query to the current machine, 2) send the query to next machine of the current tier, and 3) send the query to the next tier.
-As the context, it uses features from both the query and the current state of the VM. Hence, it is able to implicitly estimate the cost of a query as part of the learning problem and support previously unseen queries.
-PerfEnforce~\cite{perfenforce} is another system that uses ML techniques based on reinforcement learning and multi-layer perceptrons to automatically scale the size of a data processing cluster to meet the user-defined target performance goal.
+As the context, it uses features from both the query and the current state of the VM. Hence, it can implicitly estimate the cost of a query as part of the learning problem and support previously unseen queries.
+PerfEnforce~\cite{perfenforce} also uses ML techniques based on reinforcement learning and multi-layer perceptrons to automatically scale the size of a data processing cluster to meet the user-defined target performance goal.
 
 While the above systems have shown promising results on the ability to replace provisioning and scheduling components using ML, there has not been much adoption in real-world systems, and there is a reluctance among systems developers to put scalability decisions in the hands of machine learning algorithms.
 One of the major reasons for this is the inability of ML techniques to provide bounds on the worst-case scenario.
-But as ML techniques get more robust, it can be expected that heuristics-based existing planning modules will get replaced by learned components.
+But as ML techniques get more robust, it can be expected that existing heuristics-based planning modules will get replaced by learned components.
 
 \subsection{Data Structures and Algorithms}
 Every operation that is executed by the execution engine heavily relies on core data structures such as index structures and algorithms such as sorting.
@@ -79,7 +79,7 @@ It uses a set of piece-wise disjoint linear functions to approximate the CDF dis
 Using linear functions helps FITing-Tree achieve fast look-ups and also support inserts, which was one of the major limitations of the Learned Index system.
 It also provides a tunable knob to make the index optimize either for faster look-ups or smaller memory footprint.
 
-XIndex~\cite{xindex} is a concurrent learned index which supports read, write, and update operations.
+XIndex~\cite{xindex} is a concurrent learned index that supports read, write, and update operations.
 The architecture of XIndex is similar to that of FITing-Tree.
 However, the root node in XIndex also uses a linear model, unlike the B-Tree index in the FITing-Tree.
 For enabling concurrent updates it uses a delta index and periodically runs a two-phase compaction scheme to merge and copy the delta index with the main index structure.
@@ -92,7 +92,7 @@ XIndex monitors the observed error during runtime and tries to split the regions
 Learned Index system also proposed methods to replaced several other DBMS data structures and algorithms using learned ML models such as learned hash-maps, sorting, and bloom filters.
 One of the main issues with HashMap structures is getting hash collisions which increase the latency of retrievals.
 This happens when multiple keys getting mapped to the same hash bucket.
-An ML model which captures the CDF can be used to replace the hash-function and thus reduce the number of hash collisions.
+An ML model that captures the CDF can be used to replace the hash-function and thus reduce the number of hash collisions.
 The same CDF model can be used to sort the data more efficiently by first ordering the data in nearly sorted order and then using insertion/bubble sort.
 Bloom filters can be replaced by training a classification model for which the decision threshold is chosen such that the false-negative rate is zero.
 While these systems have shown initial promising results for the feasibility of replacing core data structures and algorithms using ML models, much work is still needed to make them available for enterprise DBMSs.

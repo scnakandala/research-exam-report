@@ -12,12 +12,14 @@ But using ML and a sufficient amount of labeled training data, one can \textit{l
 Out of the many types of database management systems, relational database management systems (RDBMSs) remain the most widely used type.
 Thus, for this paper, we primarily focus on RDBMSs.
 They are at the core of many critical software applications and have also influenced much of the development of other popular data management systems such as NoSQL, Big Data, and Machine Learning Systems.
-DBMSs are also full of hard unprogrammable problems.
+
+\vspace{2mm}
+\noindent \textbf{ML for DBMSs.} DBMSs are also full of hard to program problems.
 These include query optimization, physical database design optimization, buffer management, etc.
-They are unprogrammable either because they have interactable search spaces or because of the inability to predict the future.
-As a result, DBMS developers have to use heuristics and scope restrictions to solve these problems.
+They are hard either because they have interactable search spaces (e.g., query optimization) or because of the inability to predict the future (e.g., buffer management).
+As a result, DBMS developers have to use heuristics or restrict the problem space to solve these problems.
 The goal of these heuristics and restrictions is not to find an optimal solution for a particular instance, but to find a solution which has a safe worst-case performance on all cases.
-Alternatively, ML provides a flexible framework to automatically learn a program to solve these problems without being explicitly programmed by a human developer.
+Alternatively, ML provides a flexible framework to automatically learn an efficient program to solve these problems for a specific instance without being explicitly programmed by a human developer.
 
 \begin{figure*}
     \centering

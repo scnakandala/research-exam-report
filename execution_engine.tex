@@ -35,7 +35,7 @@ Execution engines have to make several planning decisions to meet the service le
 This includes resource \textit{provisioning}: deciding how many machines to be used for execution and/or \textit{scheduling}: deciding which QEP to be executed on which worker and in which order.
 The emergence of cloud computing environments makes these planning decisions even more important because of their pay-as-you-go model.
 The existing approach taken by many database systems is to use human-engineered rules or heuristics-based approaches, which are often too rigid and slow to respond to the rapid and dynamic query workloads.
-Alternatively, ML provides an opportunity to automatically learn these planning decisions more robustly and flexibly using past query workloads.
+Alternatively, ML provides an opportunity to automatically learn these planning decisions using past query workloads.
 
 WiSeDB ~\cite{wisedb} is a workload management service for cloud databases, which holistically addresses both the resource provisioning and scheduling problems.
 It takes in a query workload, the runtime of each query on each machine type, a user-defined target performance goal (e.g., average/max latency, percentile-based metrics), and recommends a set of strategies and their associated costs to the user.
@@ -43,7 +43,7 @@ Under certain assumptions, solving the original planning problem can be reduced 
 WiSeDB samples a large number of small workloads from the original workload and solves them using a brute force graph search algorithm.
 It then extracts decisions and features from each of the decisions made by the graph algorithm and trains a decision tree model.
 Finally, this decision tree model is used to generate the planning strategies and their associated costs for the original workload.
-By using a learning-based adaptive learning strategy, WiSeDB can outperform many heuristic-based techniques with little training overhead.
+By using a learning-based adaptive strategy, WiSeDB can outperform many heuristic-based techniques with little training overhead.
 One of the major limitations of WiSeDB is that it requires the user to provide cost estimates for each query, and accurately estimating the cost of previously unseen queries is an open challenge.
 
 
@@ -63,7 +63,7 @@ But as ML techniques get more robust, it can be expected that existing heuristic
 Every operation that is executed by the execution engine heavily relies on core data structures such as index structures and algorithms such as sorting.
 These data structures and algorithms do not make any assumptions on the distribution of the data and give guarantees on the worst-case performance.
 However, in some cases, if we know certain properties about the distribution of the underlying data, it is possible to come up with data structures and algorithms that can yield superior performance.
-ML provides a flexible framework for learning the empirical data distribution and a recent line of research has shown the possibility of using ML models to replace core data structures algorithms in DBMSs.
+ML provides a flexible framework for learning the empirical data distribution and a recent line of research has shown the possibility of using ML models to replace core data structures and algorithms in DBMSs.
 
 Learned Index~\cite{learnedindex} is the first system to propose the idea of using ML models to replace core data structures and algorithms. It focussed mainly on replacing B-Tree indices. 
 Given a key, what a B-Tree index essentially does is finding its position on a sorted list using a series of tree traversals.
@@ -72,7 +72,7 @@ In this sense, a B-Tree index is a model that captures the cumulative distributi
 Thus, it is possible to replace the B-Tree index with an ML model that is trained to capture the CDF of the keys.
 The error guarantee of the ML model can be found during training, which is the maximum training error for any key.
 Interestingly, unlike other ML applications, the objective here is to minimize the training error and not the generalization error.
-The advantage of replacing a B-Tree index using an ML model is that it reduces both the lookup time memory footprint of the index.
+The advantage of replacing a B-Tree index using an ML model is that it reduces both the lookup time and memory footprint of the index.
 
 FITing-Tree~\cite{fitingtree} is another system that replaces B-Tree indices using learned ML models.
 It uses a set of piece-wise disjoint linear functions to approximate the CDF distribution of the keys and uses a conventional B-Tree index to map a key to the correct linear function.
@@ -89,10 +89,9 @@ During learning, both Learned Index and FITing-Tree try to minimize the worst-ca
 In practice, most query workloads are highly skewed and their runtime performance will be determined by the performance on a small set of hotkeys.
 XIndex monitors the observed error during runtime and tries to split the regions that observe high error into multiple models to reduce the error.
 
-Learned Index system also proposed methods to replaced several other DBMS data structures and algorithms using learned ML models such as learned hash-maps, sorting, and bloom filters.
-One of the main issues with HashMap structures is getting hash collisions which increase the latency of retrievals.
-This happens when multiple keys getting mapped to the same hash bucket.
-An ML model that captures the CDF can be used to replace the hash-function and thus reduce the number of hash collisions.
+Learned Index system also proposed methods to replace several other DBMS data structures and algorithms using learned ML models such as learned hash maps, sorting, and bloom filters.
+One of the main issues with hash map structures is getting hash collisions which increases the latency of retrievals.
+An ML model that captures the CDF can be used to replace the hash function and thus reduce the number of hash collisions.
 The same CDF model can be used to sort the data more efficiently by first ordering the data in nearly sorted order and then using insertion/bubble sort.
 Bloom filters can be replaced by training a classification model for which the decision threshold is chosen such that the false-negative rate is zero.
 While these systems have shown initial promising results for the feasibility of replacing core data structures and algorithms using ML models, much work is still needed to make them available for enterprise DBMSs.

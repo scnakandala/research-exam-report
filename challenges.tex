@@ -1,5 +1,5 @@
 \section{Open Challenges}
-Integrating ML methods into DBMS components has proven to optimize system performance.
+Integrating ML methods into DBMS components has proven to optimize average system performance.
 Some systems have already integrated ML into enterprise DBMSs~\cite{leo, cardlearner, verdict}.
 However, the field is still in its infancy and requires solving many open challenges to realize the full potential.
 Next, we identify three such major open challenges:
@@ -16,7 +16,7 @@ This requires observing the outcome of the decisions taken by ML-driven componen
 Some initial work on this regard is proposed in SkinnerDB~\cite{skinnerdb}.
 SkinnerDB finds the best join ordering for a query by using an intra-query RL method that switches between different orders.
 It also provides worst-case performance guarantees for this method.
-However, this space is still very open and much work is needed to make ML-driven DBMS internal components more robust.
+However, this space is still very open and much work is needed to make ML-driven DBMS components more robust.
 
 
 \vspace{2mm}
@@ -28,18 +28,18 @@ Thus the relational engine should be able to observe the performance of a QEP as
 Such an approach will require more tight-coupling between the relational and execution engines with feedback-loops.
 
 Also, integrating ML into DBMS components requires the ability to easily experiment and having access to fine-grained system information.
-In current DBMS systems, especially with external integration, it is very hard to profile and generate training data for a specific component without invoking the full QEP execution path, which is costly.
+In current DBMSs, especially with external integration, it is very hard to profile and generate training data for a specific component without invoking the full QEP execution path, which is costly.
 Furthermore, the level of system information exposed by the DBMS is very coarse-grained.
 They are intended to be consumed by humans for debugging purposes and are too high-level for ML model training.
 Some of these limitations have been already identified and are being actively worked on~\cite{noisepage}.
 
 \vspace{2mm}
-\noindent \textbf{3. Enabling Transfer Learning} There is limited success in learning transferable knowledge that can be reused in multiple different settings.
-For example, most of the ML models used in existing DBMS components perform poorly when there is a deviation in the query workload or a change in available system resources.
-The situation is even worse when they are applied to a new DBMS instance or it is not possible to apply to a new instance at-all.
+\noindent \textbf{3. Exploiting Transfer Learning} There is limited success in learning transferable knowledge that can be reused in multiple different settings.
+For example, most of the ML models used in existing DBMS components perform poorly when there is a deviation in the query workload or a change in the system context or data.
+The situation is even worse when they are applied to a new DBMS instance or it is not possible to apply to a new instance at all.
 This significantly increases the cost of training and maintaining ML models and faces problems like cold-start and the need to continuously retrain to keep up with the changes.
 
-\textit{Transfer Learning} Transfer Learning is a technique that can be applied to overcome this limitation, which is popular in other fields such as computer vision and natural language processing.
+\textit{Transfer Learning} is a technique that can be applied to overcome this limitation, which is popular in other fields such as computer vision and natural language processing.
 Instead of training separate models for different tasks from scratch, transfer learning enables us to reuse a master model and fine-tune it to the task at hand using limited resources (e.g., compute power and training data).
 This master model is trained on a very large dataset so that it can learn most of the relevant information for any related task.
 For example, \textit{ImageNet} is a popular computer vision transfer learning dataset that has over 1 million hand-labeled images.

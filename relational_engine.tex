@@ -82,7 +82,7 @@ The search strategy uses a variant of frequent itemsets mining techniques to eff
 The search strategy also requires estimating the cost of a new configuration without actually executing the workload.
 To achieve this, AutoAdmin extends the query optimizer's cost model to support what-if queries which can assume the presence of a selected set of configurations (either hypothetical or materialized) and ignore the presence of other configurations.
 However, due to the well-known limitations of the optimizer's cost model, a configuration that the optimizer thinks is better than others can be worse when implemented.
-In a followup work~\cite{autoadmin_2,} AutoAdmin uses ML models trained on past QEP execution experiences to compare the execution cost of two QEPs of the same query corresponding to two different physical database configurations by formulating it as a classification problem.
+In a followup work~\cite{autoadmin_2} AutoAdmin uses ML models trained on past QEP execution experiences to compare the execution cost of two QEPs of the same query corresponding to two different physical database configurations by formulating it as a classification problem.
 
 AutoAdmin takes a reactive strategy for physical database design automation. 
 It selects a static configuration based on a historical query workload and leaves it up to the database administrator to choose when to apply the change.

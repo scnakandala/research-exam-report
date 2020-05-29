@@ -1,6 +1,6 @@
 \section{Design Choices}
 
-We discuss three main overarching design choices that one has to make when integrating ML components with DBMSs: 1) integration mode, 2)  learning source and 3) choice of ML paradigm.
+We discuss three main overarching design choices that one has to make when integrating ML components into DBMSs: 1) integration mode, 2)  learning source and 3) choice of ML paradigm.
 
 
 \subsection{Integration Mode}
@@ -35,9 +35,9 @@ However, internal integration requires tight coupling between the components ins
 Hence, they are mostly applicable to new data system developments that are being developed from scratch (also called greenfield systems).
 % Several vision systems have already proposed novel learned DBMS architectures.
 
-NoisePage~\cite{noisepage} is an in-memory hybrid transactional and analytic processing DBMS, which can automatically optimize query execution without a human database administrator.
+NoisePage~\cite{noisepage} is one such green field system for in-memory hybrid transactional and analytic processing, which can automatically optimize query execution without a human database administrator.
 It focusses on knob tuning, resource provisioning, and physical database design optimization.
-NoisePage has a modular architecture optimized for efficient offline training data collection by ML components.
+It also has a modular architecture optimized for efficient offline training data collection by ML components.
 Training data for each module (e.g., transaction manager) can be obtained in isolation without the need of going through the entire DBMS execution path.
 These offline collected data is then combined with the data collected through online query execution to learn ML models.
 The ML pipeline in NoisePage has three main phases: 1) modeling, 2) planning, 3) deployment.
@@ -103,7 +103,7 @@ As a result, the same deep NLP models have been used in systems like SpeakQL~\ci
 Naru ~\cite{naru} uses a transformer-based deep learning model to learn the joint probability distribution of the data for cardinality estimation.
 Neo~\cite{neo}, DQM~\cite{dqm}, and iBTune~\cite{ibtune} also use deep learning models for query optimization (QEP generation), physical database design (materialization optimization), and knob tuning (buffer size tuning), respectively.
 
-However, the high model capacity of deep learning models and their ability to learn highly accurate models comes at a cost.
+However, the high model capacity of deep learning models and their ability to learn highly accurate models come at a cost.
 First, these models require significantly large amounts of training data without which the models will start to overfit. In many DBMS components, collecting large amounts of training data is expensive as the queries have to be executed potentially on large databases.
 Second, deep learning models are highly compute-intensive which can require few hours to a few days of training even when using expensive hardware accelerators such as GPUs. This can cause degradation of DBMS query execution performance.
 Furthermore, typically deep learning inference times are in few hundreds of milliseconds and do not match with the performance requirements of the DBMS components such as cardinality estimators and indices which have to be in the order of few milliseconds.
@@ -114,7 +114,7 @@ As a result, while deep learning-based methods have shown promising accuracy res
 \vspace{2mm}
 \noindent \textbf{Classical ML.} We found that classical ML-based methods are widely used to integrate ML into DBMS components and some of them (e.g., LEO~\cite{leo}, CardLearner~\cite{cardlearner}, AutoAdmin~\cite{autoadmin}, and VerdictDB~\cite{verdict}) have been even integrated in the enterprise systems.
 Classical ML methods overcome much of the limitations of deep learning methods: they are less compute-intensive to train, require much less training data, have faster inference times, and generate much easy to explain predictions.
-However, most classical ML models are known to have fewer model capacities and thus less predictive power compared to deep learning models. Thus their accuracy can be lower.
+However, most classical ML models are known to have fewer model capacities and have less predictive power compared to deep learning models. Thus their accuracy can be lower.
 
 
 \subsubsection{Learning Paradigm}
@@ -124,7 +124,7 @@ We explain the use of three learning paradigms that systems have used to integra
 \noindent \textbf{Supervised Learning.} Out of the systems we surveyed supervised learning approach is the most widely used learning paradigm (see Figure 1).
 The training data required for supervised learning is collected either beforehand or continuously during query execution.
 Seq2SQL~\cite{seq2sql} and SQLNet~\cite{sqlnet} use a large manually generated dataset of SQL and natural language query pairs.
-Most other systems (e.g., CardLearner~\cite{cardlearner}, QPPNet~\cite{qppnet}, Naru~\cite{naru}, AutoAdmin~\cite{autoadmin, autoadmin_2}, and Learned Index ~\cite{learnedindex}) preform initial training from previously collected training data and then perform periodic retraining as new data becomes available or the query workload or the data significantly change.
+Most other systems (e.g., CardLearner~\cite{cardlearner}, QPPNet~\cite{qppnet}, Naru~\cite{naru}, AutoAdmin~\cite{autoadmin, autoadmin_2}, and Learned Index ~\cite{learnedindex}) preform initial training from previously collected training data and then perform periodic retraining as new data becomes available or the query workload or the data in the DBMS significantly change.
 
 In some cases, collecting training data can be expensive as it requires executing a large number of queries potentially on large databases.
 However, the prevalence of cloud databases has mitigated these issues as cloud operators have access to large amounts of query execution traces from many tenants.
@@ -133,7 +133,7 @@ However, the prevalence of cloud databases has mitigated these issues as cloud o
 \noindent \textbf{Reinforcement Learning.} Reinforcement learning (RL) methods are particularly applicable when a system component has to make a series of decisions and the reward of each decision is not directly observable.
 Thus, RL methods have been used in tasks including QEP generation (e.g., SkinnerDB~\cite{skinnerdb}, ReJoin~\cite{rejoin}, Neo~\cite{neo}), materialization optimization (e.g., DQM~\cite{dqm}) and scheduling (e.g., Bandit~\cite{bandit}).
 
-RL methods perform on the job training and collect as the DBMS execute queries.
+RL methods perform on the job training and collect data as the DBMS execute queries.
 Initially, they may generate worse results as the models have not converged yet.
 To overcome this, one could use a bootstrapping strategy called  \textit{learn by demonstration} where the existing DBMS component is used to generate initial training data for the RL model to bootstrap.
 After this initial training, the RL model will continue to learn on the job and become better than the existing DBMS component.

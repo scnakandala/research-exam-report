@@ -13,7 +13,7 @@ Understanding the worst-case behavior of ML-driven software components is still 
 Another approach to solving the same problem would be to integrate adaptive query execution strategies with ML-driven components.
 This requires observing the outcome of the decisions taken by ML-driven components and dynamically adjusting them when a performance degradation is detected.
 Some initial work on this regard is proposed in SkinnerDB~\cite{skinnerdb}.
-SkinnerDB finds the best join ordering for a query by using an intra-query RL method that switches between different orders.
+SkinnerDB finds the best join ordering for a query by using an intra-query RL method that switches between different orders before it finds the optimal one.
 It also provides worst-case performance guarantees for this method.
 However, this space is still very open and much work is needed to make ML-driven DBMS components more robust.
 

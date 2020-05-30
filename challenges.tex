@@ -23,7 +23,7 @@ As a result, when one integrates ML into DBMS components they have to face sever
 For example, the separation of concerns such that the relational engine making all the intelligent decisions and the execution engine passively executing them no longer holds.
 Decisions taken by the relational engine when compiling the QEP may turn out to be wrong when executing it.
 Thus the relational engine should be able to observe the performance of a QEP as it executes and refine the decisions as new information becomes available.
-Such an approach will require more tight-coupling between the relational and execution engines with feedback-loops.
+Such an approach will require tight-coupling between the relational and execution engines with feedback-loops.
 
 Also, integrating ML into DBMS components requires the ability to easily experiment and having access to fine-grained system information.
 In current DBMSs, especially with external integration, it is very hard to profile and generate training data for a specific component without invoking the full QEP execution path, which is costly.

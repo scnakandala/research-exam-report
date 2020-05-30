@@ -116,7 +116,6 @@ This is achieved by modeling a multivariate normal distribution model using the 
 Instead of learning from past queries and augmenting sampling-based methods with ML methods at execution time, DBEst~\cite{dbest} takes a pure ML-based approach for answering AQP queries.
 It samples data corresponding to each predicate attribute and group by attribute values and trains regression and density models.
 At execution time it uses the corresponding models and performs integration over those models to generate AQP result.
-
 Similarly, DeepDB~\cite{deepdb} also uses ML methods to learn the joint probability distribution of the data, which can be used to answer AQP queries.
 The type of the ML models used by DeepDB is called Relational Sum-Product Networks (RSPN), which belongs probabilistic graphical model family.
 Given a relational database and the correlations between columns, DeepDB trains RSPNs for the tables and use the RSPN ensemble to answer SQL queries by compiling them into inference procedures over the RSPNs.

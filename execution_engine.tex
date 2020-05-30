@@ -38,7 +38,7 @@ The existing approach taken by many database systems is to use human-engineered 
 Alternatively, ML provides an opportunity to automatically learn these planning decisions using past query workloads.
 We identify two different settings of applying ML for resource provisioning and scheduling.
 
-\subsubsection{Batch Processing}
+\subsubsection{Provisioning and Scheduling for Batch Processing}
 WiSeDB ~\cite{wisedb} is a workload management service for cloud databases, which holistically addresses both the resource provisioning and scheduling problems.
 It takes in a query workload, the runtime of each query on each machine type, a user-defined target performance goal (e.g., average/max latency, percentile-based metrics), and recommends a set of strategies and their associated costs to the user.
 Under certain assumptions, solving the original planning problem can be reduced to the bin packing problem which is an NP-hard problem.
@@ -49,7 +49,7 @@ By using a learning-based adaptive strategy, WiSeDB can outperform many heuristi
 One of the major limitations of WiSeDB is that it requires the user to provide cost estimates for each query, and accurately estimating the cost of previously unseen queries is an open challenge.
 
 
-\subsubsection{Online Processing}
+\subsubsection{Provisioning and Scheduling for Online Processing}
 Similar to WiSeDB, Bandit~\cite{bandit} is another system for solving the provisioning and scheduling problem of cloud database systems which focuses on online scheduling rather than batch scheduling.
 It models the planning problem as a multi-tiered contextual multi-arm bandit problem (CMAB), a well-known reinforcement learning technique.
 The tiers in the CMAB corresponds to the different VM types and they are organized in the descending order of their capacity/cost. 

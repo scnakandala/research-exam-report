@@ -6,8 +6,7 @@ We discuss three main overarching design choices that one has to make when integ
 \subsection{Integration Mode}
 We found that there are two main engineering approaches for integrating ML components into DBMSs: external vs. internal integration ~\cite{pavlo2019external}.
 
-\vspace{2mm}
-\noindent \textbf{External Integration.} Modern DBMSs are complex systems and they allow human database administrators to control the query execution performance by (1) optimizing the physical database design, (2) providing query optimization hints, (3) knob tuning, and (4) resource provisioning.
+\subsubsection{External Integration} Modern DBMSs are complex systems and they allow human database administrators to control the query execution performance by (1) optimizing the physical database design, (2) providing query optimization hints, (3) knob tuning, and (4) resource provisioning.
 They also provide information about the system such as resource usage, query traces, and performance metrics.
 Under this context, the focus of externally integrated ML components is to provide recommendations to human database administrators or replace them and automatically perform the tasks using the standard configuration endpoints provided by the DBMS.
 
@@ -26,8 +25,7 @@ This significantly increases the time required for knob tuning by an ML componen
 Finally, the system information metrics provided by the DBMSs are primarily intended to be consumed by human database administrators for diagnosing performance bottlenecks.
 Thus they can be too high-level for ML components to learn from.
 
-\vspace{2mm}
-\noindent \textbf{Internal Integration.} 
+\subsubsection{Internal Integration} 
 Internal integration of ML components tries to mitigate much of the above-mentioned limitations by changing the DBMS architecture to treat ML components as first-class components.
 As a result, ML components get more access to the low-level information and more fine-grained control to the DBMS.
 Coherence among the decisions taken by multiple ML components inside a DBMS can be achieved by having a centralized coordinator that takes suggested actions from different ML components and execute them only if they don't interfere with other decisions.
@@ -58,8 +56,7 @@ But the performance of the queries is dependant on the state of the underlying d
 Hence, in some cases, it is also possible to achieve the same goal by learning directly from the data.
 % Next we explain some of the popular systems which adopts these two approaches and compare their pros and cons.
 
-\vspace{2mm}
-\noindent \textbf{Learning from Queries.} As shown in Figure 1, learning from query workloads is the most widely used approach for integrating ML into DBMS across all components.
+\subsubsection{Learning from Queries} As shown in Figure 1, learning from query workloads is the most widely used approach for integrating ML into DBMS across all components.
 Learning from queries enables the ML models to learn a narrow scoped problem which is much easier to model/learn and hence improve the overall performance of the system.
 
 However, this approach faces three main challenges.
@@ -67,8 +64,7 @@ First, collecting training data for this approach can be expensive as each query
 Second, it does not generalize well for unseen workload queries and causes significant performance degradation at execution time.
 Third, changes in the workload patterns or underlying data require capturing new training data and expensive retraining which can cause system downtime.
 
-\vspace{2mm}
-\noindent \textbf{Learning from Data.} More recently several systems have been proposed that learn from DB-resident data, instead of query workloads.
+\subsubsection{Learning from Data} More recently several systems have been proposed that learn from DB-resident data, instead of query workloads.
 These systems train models to learn the empirical data distribution of the data and use them to improve DBMS performance.
 For example, DBEst~\cite{dbest} and DeepDB~\cite{deepdb} uses probability distribution models to answer AQP queries.
 Naru~\cite{naru} and DeepDB~\cite{deepdb} use joint probability distribution models in the relational engine to optimize cardinality estimates.
@@ -79,8 +75,8 @@ More importantly, \cite{deepdb} has shown that the same probability distribution
 However, accurately capturing the joint probability distribution of a relational dataset with multiple tables is a complex learning task that requires models with high learning capacity and training time.
 Furthermore, not all DBMS components can be purely learned from data (e.g., execution engine knob tuning).
 
-\vspace{2mm}
-\noindent \textbf{Hybrid Methods.} While most of the existing systems fall into one of the above two approaches, it would be interesting to explore the possibility of combining both approaches.
+
+\subsubsection{Hybrid Methods} While most of the existing systems fall into one of the above two approaches, it would be interesting to explore the possibility of combining both approaches.
 Some early work in this regard has been proposed in the XIndex~\cite{xindex} system.
 XIndex is a learned index structure that replaces B-tree indices.
 It does so by learning the empirical cumulative distribution function of the keys of the data.

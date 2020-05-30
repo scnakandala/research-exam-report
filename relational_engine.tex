@@ -15,11 +15,15 @@ The first approach is to train ML models for cardinality estimation and integrat
 The second approach is to completely replace the traditional query optimizer by using ML to generate the QEP, end-to-end.
 
 \subsubsection{Cardinality Estimation}
-LEO~\cite{leo} is one of the very first systems developed to use ML techniques to improve the cardinality estimation.
+We identify three different methods for learning ML models for cardinality estimation.
+
+\vspace{2mm}
+\noindent \textbf{Predicate Level Models.} LEO~\cite{leo} is one of the very first systems developed to use ML techniques to improve the cardinality estimation.
 It uses the optimizer estimated cardinalities and the cardinalities observed during execution to learn predicate level linear models to predict the correct output cardinalities.
 However, not accounting for QEP structure and using the optimizer estimated cardinality as the only feature prevents LEO from achieving high accuracies.
 
-CardLearner~\cite{cardlearner} extends the idea of LEO and builds ML models to predict cardinalities of commonly occurring query templates instead of each predicate.
+\vspace{2mm}
+\noindent\textbf{Sub-graph Level Models.} CardLearner~\cite{cardlearner} extends the idea of LEO and builds ML models to predict cardinalities of commonly occurring query templates instead of each predicate.
 A template is a family of queries with the same structure but varying parameters and inputs.
 Instead of training one single model for all commonly occurring query templates, it trains separate ML models for each template.
 CardLerarner uses several hand-engineered features including metadata features, input cardinalities of all input datasets, and features associated with operators.
@@ -27,7 +31,8 @@ Operating on query templates enables CardLearner to capture the semantics of the
 However, its accuracy degrades when faced with new queries and queries which have unseen sub-graphs.
 
 
-One could also train ML models to predict the output cardinality of entire QEPs.
+\vspace{2mm}
+\noindent \textbf{Graph Level Models.} One could also train ML models to predict the output cardinality of entire QEPs.
 % QPPNet~\cite{qppnet}, Naru~\cite{naru}, and DeepDB~\cite{deepdb} are examples of such systems.
 QPPNet uses a novel neural network architecture that matches the QEP structure.
 It is composed of stacking sub-neural-modules corresponding to each operator in the QEP which takes in hand-engineered features as well as output from other sub-neural-modules.
@@ -38,21 +43,26 @@ Thus, instead of learning from query workloads, Naru~\cite{naru}, and DeepDB~\ci
 Naru uses deep autoregressive models and combines it with a novel Monte Carlo integration scheme to efficiently support range and wildcard queries.
 DeepDB uses Relational Sum-Product Networks (RSPNs), a variant of a probabilistic graphical model, to model the joint probability distribution.
 
+\vspace{2mm}
 It is important to mention that some of the above systems (e.g., LEO in IBM DB2 and CardLearner in Microsoft SCOPE) have been (or are being) used in enterprise systems.
 
 \subsubsection{Query Evaluation Plan Generation.} The QEP search strategy in the optimizer closely resembles the reinforcement learning (RL) methods in machine learning.
 Hence, several systems have tried to replace the entire QEP generation process using RL instead of using ML models to augment an existing optimizer.
 This ability to learn from the feedback from the chosen QEPs enables RL models to avoid choosing the same bad QEP over and over again.
+We identify two different methods of using RL for generating QEPs end-to-end.
 
-SkinnerDB~\cite{skinnerdb} proposes an intra-query regret-bounded RL learning strategy to find the optimal join ordering for a QEP.
+\vspace{2mm}
+\noindent \textbf{Intra-Query Classical RL.} SkinnerDB~\cite{skinnerdb} proposes an intra-query regret-bounded RL learning strategy to find the optimal join ordering for a QEP.
 Instead of learning from past query executions, it uses UTC algorithm~\cite{utc} to learn from the current query execution to optimize the remaining of the current query.
 While this approach incurs some overheads due to cold starting for every query, the overall overheads remain negligible as it can avoid catastrophic join order choices.
 
-ReJoin~\cite{rejoin} and Neo~\cite{neo} use recent advancements in deep reinforcement learning to generate optimal QEPs.
+\vspace{2mm}
+\noindent \textbf{Deep RL.} ReJoin~\cite{rejoin} and Neo~\cite{neo} use recent advancements in deep reinforcement learning to generate optimal QEPs.
 ReJoin uses the existing cost model of the optimizer to learn a policy network that can outperform the optimizer search strategy after more online training.
 Neo uses the observed latency of QEP executions to learn a value network to predict the latency of any new QEP.
 To reduce learning time and avoid choosing and evaluating prohibitively expensive join orders, Neo bootstraps the value network using latencies observed for the QEPs generated by a traditional query optimizer.
 
+\vspace{2mm}
 While the above systems have shown some early promising results on the ability of ML techniques to replace the traditional query optimizers, a vast number important of challenges remain open to enable practical adoption.
 For example, these systems make simplifying assumptions on the grammar of supported queries, do not support physical operator selection, and in some cases assumes the availability of customized execution engines (e.g., \cite{skinnerdb}).
 
@@ -64,19 +74,11 @@ However, the physical database design significantly affects the performance and 
 Physical database design choices include creating indices, selecting materialized views, and selecting data partitioning.
 Traditionally, this has been the responsibility of database administration personnel and they have used heuristics and human judgment to perform these tasks.
 Several systems have used ML techniques that learn from workload patterns either to develop decision support systems for database administrators or to automate the process.
+We identify two different methods for integrating ML for physical database design automation.
 
-
+\subsubsection{Reactive Systems}
 SQL Server AutoAdmin~\cite{autoadmin} system is one of the very first systems to adopt ML techniques for the physical database design process.
-It takes in a historical query workload and searches for a configuration that minimizes the cost of execution of the workload and recommends that to the database administrator.
-The chosen configuration dictates which indices and materialized-views to be created and which data partitioning scheme to be used.
-The search strategy uses a variant of frequent itemsets mining techniques to efficiently explore the enormous search space generated by a large number of possibilities.
-The search strategy also requires estimating the cost of a new configuration without actually executing the workload.
-To achieve this, AutoAdmin extends the query optimizer's cost model to support what-if queries which can assume the presence of a selected set of configurations (either hypothetical or materialized) and ignore the presence of other configurations.
-However, due to the well-known limitations of the optimizer's cost model, a configuration that the optimizer thinks is better than others can be worse when implemented.
-In a followup work~\cite{autoadmin_2,} AutoAdmin uses ML models trained on past QEP execution experiences to compare the execution cost of two QEPs of the same query corresponding to two different physical database configurations by formulating it as a classification problem.
-
-SQL Server AutoAdmin~\cite{autoadmin} system is one of the very first systems to adopt ML techniques for the physical database design process.
-It takes in a historical query workload and searches for a configuration that minimizes the cost of execution of the workload and recommends that to the database administrator.
+It adopts a reactive strategy where it takes in a historical query workload and searches for a configuration that minimizes the cost of execution of the workload and recommends that to the database administrator.
 The chosen configuration dictates which indices and materialized-views to be created and which data partitioning scheme to be used.
 The search strategy uses a variant of frequent itemsets mining techniques to efficiently explore the enormous search space generated by a large number of possibilities.
 The search strategy also requires estimating the cost of a new configuration without actually executing the workload.
@@ -84,9 +86,8 @@ To achieve this, AutoAdmin extends the query optimizer's cost model to support w
 However, due to the well-known limitations of the optimizer's cost model, a configuration that the optimizer thinks is better than others can be worse when implemented.
 In a followup work~\cite{autoadmin_2} AutoAdmin uses ML models trained on past QEP execution experiences to compare the execution cost of two QEPs of the same query corresponding to two different physical database configurations by formulating it as a classification problem.
 
-AutoAdmin takes a reactive strategy for physical database design automation. 
-It selects a static configuration based on a historical query workload and leaves it up to the database administrator to choose when to apply the change.
-However, the chosen configuration may be sub-optimal for the workload in the near future.
+\subsubsection{Proactive Systems}
+Configurations chosen by reactive systems like AutoAdmin may be sub-optimal for the workload in the near future.
 On the contrary systems like QB5000~\cite{qb5000} and DQM~\cite{dqm} takes a proactive strategy for physical database design that completely automates the process without any intervention of a human.
 QB5000 trains ML models to predict the query workload to the future and uses that to select the best set of indices.
 DQM trains a deep RL model to learn a policy to opportunistically select and evict materialized views subject to storage constraints, that will have the most benefit into the future.
@@ -96,10 +97,11 @@ While these systems have shown promising initial results, much work is still nee
 While the ever-growing volumes of data enable us to glean unprecedented insights, the associated high computational and resource costs often become a bottleneck.
 Approximate query processing (AQP) techniques try to mitigate this issue by generating approximate answers to the original query at a fraction of the time and cost of the original query execution.
 The conventional approach to AQP is to use query time data sampling and data statistics to answer queries.
-After the query is executed, the work done for that query is never reused.
-
-Every new query execution reveals some new information about the data and executing more and more queries over time enables us to refine that information even further.
+After the query is executed, the work done for that query is never reused. However, every new query execution reveals some new information about the data and executing more and more queries over time enables us to refine that information even further.
 Thus, machine learning techniques provide an interesting opportunity to learn from past query executions and use that learning to approximately answer future queries.
+We identify two different methods of using ML for AQP.
+
+\subsubsection{Augmenting Existing AQP Components}
 Verdict \cite{verdict} is one of the first systems to apply this technique in the context of AQP.
 It uses a data structure called \textit{Query Synopsis} to store the past query results and uses it to refine the approximate answer generated by the system for new queries.
 Thus Verdict can reduce the runtime required for an approximate query for specified error bound or reduce the error bound for an approximate query with a specified time budget.
@@ -109,6 +111,7 @@ This is achieved by modeling a multivariate normal distribution model using the 
 % However, Verdict can only support flat select-project-join style queries with no text predicated which only covers 14 of the 21 TPC-H queries.
 % Also, it cannot support updates and deletes.
 
+\subsubsection{Replacing Existing AQP Components}
 Instead of learning from past queries and augmenting sampling-based methods with ML methods at execution time, DBEst~\cite{dbest} takes a pure ML-based approach for answering AQP queries.
 It samples data corresponding to each predicate attribute and group by attribute values and trains regression and density models.
 At execution time it uses the corresponding models and performs integration over those models to generate AQP result.

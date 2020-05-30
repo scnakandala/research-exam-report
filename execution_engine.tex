@@ -36,7 +36,9 @@ This includes resource \textit{provisioning}: deciding how many machines to be u
 The emergence of cloud computing environments makes these planning decisions even more important because of their pay-as-you-go model.
 The existing approach taken by many database systems is to use human-engineered rules or heuristics-based approaches, which are often too rigid and slow to respond to the rapid and dynamic query workloads.
 Alternatively, ML provides an opportunity to automatically learn these planning decisions using past query workloads.
+We identify two different settings of applying ML for resource provisioning and scheduling.
 
+\subsubsection{Batch Processing}
 WiSeDB ~\cite{wisedb} is a workload management service for cloud databases, which holistically addresses both the resource provisioning and scheduling problems.
 It takes in a query workload, the runtime of each query on each machine type, a user-defined target performance goal (e.g., average/max latency, percentile-based metrics), and recommends a set of strategies and their associated costs to the user.
 Under certain assumptions, solving the original planning problem can be reduced to the bin packing problem which is an NP-hard problem.
@@ -47,6 +49,7 @@ By using a learning-based adaptive strategy, WiSeDB can outperform many heuristi
 One of the major limitations of WiSeDB is that it requires the user to provide cost estimates for each query, and accurately estimating the cost of previously unseen queries is an open challenge.
 
 
+\subsubsection{Online Processing}
 Similar to WiSeDB, Bandit~\cite{bandit} is another system for solving the provisioning and scheduling problem of cloud database systems which focuses on online scheduling rather than batch scheduling.
 It models the planning problem as a multi-tiered contextual multi-arm bandit problem (CMAB), a well-known reinforcement learning technique.
 The tiers in the CMAB corresponds to the different VM types and they are organized in the descending order of their capacity/cost. 
@@ -55,6 +58,7 @@ When a new query arrives, starting from the first VM of the first tier the CMAB 
 As the context, it uses features from both the query and the current state of the VM. Hence, it can implicitly estimate the cost of a query as part of the learning problem and support previously unseen queries.
 PerfEnforce~\cite{perfenforce} also uses ML techniques based on reinforcement learning and multi-layer perceptrons to automatically scale the size of a data processing cluster to meet the user-defined target performance goal.
 
+\vspace{2mm}
 While the above systems have shown promising results on the ability to replace provisioning and scheduling components using ML, there has not been much adoption in real-world systems, and there is a reluctance among systems developers to put scalability decisions in the hands of machine learning algorithms.
 One of the major reasons for this is the inability of ML techniques to provide bounds on the worst-case scenario.
 But as ML techniques get more robust, it can be expected that existing heuristics-based planning modules will get replaced by learned components.
@@ -65,6 +69,7 @@ These data structures and algorithms do not make any assumptions on the distribu
 However, in some cases, if we know certain properties about the distribution of the underlying data, it is possible to come up with data structures and algorithms that can yield superior performance.
 ML provides a flexible framework for learning the empirical data distribution and a recent line of research has shown the possibility of using ML models to replace core data structures and algorithms in DBMSs.
 
+\subsubsection{Learned B-Tree Indices}
 Learned Index~\cite{learnedindex} is the first system to propose the idea of using ML models to replace core data structures and algorithms. It focussed mainly on replacing B-Tree indices. 
 Given a key, what a B-Tree index essentially does is finding its position on a sorted list using a series of tree traversals.
 B-Trees also give a guarantee on the error on the selected position: the maximum error is bounded by the page size.
@@ -89,6 +94,7 @@ During learning, both Learned Index and FITing-Tree try to minimize the worst-ca
 In practice, most query workloads are highly skewed and their runtime performance will be determined by the performance on a small set of hotkeys.
 XIndex monitors the observed error during runtime and tries to split the regions that observe high error into multiple models to reduce the error.
 
+\subsubsection{Other Data Structures and Algorithms}
 Learned Index system also proposed methods to replace several other DBMS data structures and algorithms using learned ML models such as learned hash maps, sorting, and bloom filters.
 One of the main issues with hash map structures is getting hash collisions which increases the latency of retrievals.
 An ML model that captures the CDF can be used to replace the hash function and thus reduce the number of hash collisions.

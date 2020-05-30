@@ -94,7 +94,7 @@ During learning, both Learned Index and FITing-Tree try to minimize the worst-ca
 In practice, most query workloads are highly skewed and their runtime performance will be determined by the performance on a small set of hotkeys.
 XIndex monitors the observed error during runtime and tries to split the regions that observe high error into multiple models to reduce the error.
 
-\subsubsection{Other Data Structures and Algorithms}
+\subsubsection{Other Learned Data Structures and Algorithms}
 Learned Index system also proposed methods to replace several other DBMS data structures and algorithms using learned ML models such as learned hash maps, sorting, and bloom filters.
 One of the main issues with hash map structures is getting hash collisions which increases the latency of retrievals.
 An ML model that captures the CDF can be used to replace the hash function and thus reduce the number of hash collisions.
